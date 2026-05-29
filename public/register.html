@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація - Lightbox</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2>Реєстрація</h2>
+        
+        <form id="registerForm">
+            <input type="text" id="username" placeholder="Логін" required>
+            <input type="password" id="password" placeholder="Пароль" required>
+            <button type="submit">Створити акаунт</button>
+        </form>
+
+        <p id="message"></p>
+    </div>
+
+    <script>
+        // Знаходимо форму та блок повідомлень
+        const form = document.getElementById('registerForm');
+        const messageBox = document.getElementById('message');
+
+        // Що робити, коли користувач натискає "Створити акаунт"
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Зупиняємо стандартне перезавантаження сторінки
+            
+            // Збираємо дані з полів вводу
+            const usernameValue = document.getElementById('username').value;
+            const passwordValue = document.getElementById('password').value;
+
+            try {
+                // Відправляємо POST запит на наш бекенд
+                const response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: usernameValue,
+                        password: passwordValue
+                    })
+                });
+
+                // Чекаємо на відповідь від сервера
+                const data = await response.json();
+
+                // Якщо сервер повернув помилку (наприклад, логін зайнятий)
+                if (!response.ok) {
+                    messageBox.className = 'error';
+                    messageBox.innerText = data.error;
+                } else {
+                    // Якщо реєстрація успішна
+                    messageBox.className = 'success';
+                    messageBox.innerText = data.message;
+                    form.reset(); // Очищаємо поля
+                }
+
+            } catch (error) {
+                console.error('Помилка з\'єднання:', error);
+                messageBox.className = 'error';
+                messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+/* public/style.css */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.auth-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+}
+
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+#message {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+}
+
+.success {
+    color: green;
+}
+
+/* Базові налаштування (якщо їх ще немає) */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f3f4f6;
+    /* Світло-сірий фон, як на сторінці логіну */
+    color: #333;
+    margin: 0;
+    padding: 40px 20px;
+}
+
+/* Головний контейнер по центру */
+.dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Шапка з кнопкою виходу */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    color: #1f2937;
+}
+
+/* Стиль для карток */
+.upload-card,
+.files-card {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+}
+
+/* Форма завантаження */
+.upload-form {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.file-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px dashed #d1d5db;
+    border-radius: 6px;
+    background: #f9fafb;
+    cursor: pointer;
+}
+
+/* Кнопки */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #10b981;
+    /* Зелений */
+    color: white;
+    padding: 12px 20px;
+}
+
+.btn-primary:hover {
+    background-color: #059669;
+}
+
+.btn-logout {
+    background-color: #ef4444;
+    color: white;
+    padding: 8px 16px;
+}
+
+/* Список файлів */
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Кожен файл у списку (Flexbox магія) */
+.file-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* Розсуває елементи по краях */
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Текст назви файлу забирає весь вільний простір */
+.file-list li span {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Кнопки дій з файлом */
+.file-list li button {
+    padding: 8px 12px;
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.file-list li button:first-of-type {
+    background-color: #3b82f6;
+    /* Синій для скачування */
+    color: white;
+}
+
+.file-list li button:last-of-type {
+    background-color: #fee2e2;
+    /* Блідо-червоний для видалення */
+    color: #ef4444;
+}
+
+.file-list li button:last-of-type:hover {
+    background-color: #fca5a5;
+    color: white;
+}
+
+/* Повідомлення під формою */
+.message {
+    margin: 15px 0 0 0;
+}

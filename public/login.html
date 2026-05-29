@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід - Lightbox</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2>Вхід у Lightbox</h2>
+        
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Логін" required>
+            <input type="password" id="password" placeholder="Пароль" required>
+            <button type="submit">Увійти</button>
+        </form>
+
+        <p id="message"></p>
+        
+        <div style="margin-top: 15px; font-size: 14px;">
+            Ще немає акаунту? <a href="/register.html">Зареєструватися</a>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const messageBox = document.getElementById('message');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault(); 
+            
+            const usernameValue = document.getElementById('username').value;
+            const passwordValue = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/users/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: usernameValue,
+                        password: passwordValue
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    messageBox.className = 'error';
+                    messageBox.innerText = data.error;
+                } else {
+                    // НАЙГОЛОВНІШИЙ МОМЕНТ АВТОРИЗАЦІЇ!
+                    // Зберігаємо наш JWT-токен у пам'ять браузера
+                    localStorage.setItem('lightbox_token', data.token);
+                    
+                    messageBox.className = 'success';
+                    messageBox.innerText = data.message + ' Токен отримано!';
+                    
+                    // Тут у майбутньому ми будемо перенаправляти користувача на головну сторінку
+                    // window.location.href = '/index.html'; 
+                }
+
+            } catch (error) {
+                console.error('Помилка з\'єднання:', error);
+                messageBox.className = 'error';
+                messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
+            }
+        });
+    </script>
+
+</body>
+</html>

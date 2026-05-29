@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightbox - Головна</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Мій Lightbox 🚀</h1>
+            <button id="logoutBtn" class="btn-logout">Вийти</button>
+        </div>
+        
+        <div class="upload-card">
+            <form id="uploadForm" class="upload-form">
+                <input type="file" id="fileInput" class="file-input" required>
+                <button type="submit" class="btn-primary">Завантажити на сервер</button>
+            </form>
+            <p id="uploadMessage" class="message"></p>
+        </div>
+
+        <div class="files-card">
+            <h2>Сховище файлів</h2>
+            <ul id="file-list" class="file-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const messageBox = document.getElementById('uploadMessage');
+        const listElement = document.getElementById('file-list');
+
+        // ==========================================
+        // 1. ЛОГІКА ЗАВАНТАЖЕННЯ ФАЙЛУ
+        // ==========================================
+        const uploadForm = document.getElementById('uploadForm');
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                // БРАУЗЕР ТЕПЕР САМ ДОДАСТЬ КУКУ, HEADERS БІЛЬШЕ НЕ ПОТРІБНІ!
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    messageBox.style.color = 'red';
+                    messageBox.innerText = data.error || 'Помилка завантаження';
+                    
+                    if (response.status === 401 || response.status === 403) {
+                        setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                    }
+                } else {
+                    messageBox.style.color = 'green';
+                    messageBox.innerText = data.message;
+                    uploadForm.reset();
+                    loadFiles(); // Оновлюємо список
+                }
+            } catch (error) {
+                console.error('Помилка:', error);
+                messageBox.style.color = 'red';
+                messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
+            }
+        });
+
+        // ==========================================
+        // 2. ЛОГІКА ВІДОБРАЖЕННЯ, СКАЧУВАННЯ ТА ВИДАЛЕННЯ
+        // ==========================================
+        async function loadFiles() {
+            try {
+                // Запит до БД (кука полетить автоматично)
+                const response = await fetch('/files');
+
+                // Якщо бекенд каже 401 - значить куки немає або вона прострочена
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                if (!response.ok) return;
+
+                const files = await response.json();
+                listElement.innerHTML = '';
+
+                if (files.length === 0) {
+                    listElement.innerHTML = '<li>У вас поки немає завантажених файлів.</li>';
+                    return;
+                }
+
+                files.forEach(file => {
+                    const li = document.createElement('li');
+                    li.style.marginBottom = '15px';
+                    li.style.display = 'flex';
+                    li.style.alignItems = 'center';
+
+                    const fileNameText = document.createElement('span');
+                    fileNameText.textContent = file.encrypted_original_name;
+                    fileNameText.style.marginRight = '15px';
+                    fileNameText.style.fontWeight = 'bold';
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.textContent = '⬇ Скачати';
+                    downloadBtn.onclick = async () => {
+                        try {
+                            // Скачування без headers!
+                            const dlResponse = await fetch(`/download/${file.disk_name}`);
+                            
+                            if (dlResponse.ok) {
+                                const blob = await dlResponse.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = file.encrypted_original_name;
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                window.URL.revokeObjectURL(url);
+                            } else {
+                                alert('Помилка доступу при скачуванні.');
+                            }
+                        } catch (error) {
+                            alert('Не вдалося скачати файл.');
+                        }
+                    };
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '❌ Видалити';
+                    deleteBtn.style.marginLeft = '10px';   
+                    deleteBtn.onclick = async () => {
+                        if (confirm('Точно видалити цей файл?')) {
+                            try {
+                                // Видалення тільки з методом DELETE, без headers!
+                                const delResponse = await fetch(`/delete/${file.disk_name}`, { 
+                                    method: 'DELETE'
+                                });
+                                
+                                if (delResponse.ok) {
+                                    li.remove();
+                                    if (listElement.children.length === 0) {
+                                        listElement.innerHTML = '<li>У вас поки немає завантажених файлів.</li>';
+                                    }
+                                } else {
+                                    alert('Помилка доступу при видаленні');
+                                }
+                            } catch (error) {
+                                alert('Не вдалося видалити файл');
+                            }
+                        }
+                    };
+
+                    li.appendChild(fileNameText);
+                    li.appendChild(downloadBtn);
+                    li.appendChild(deleteBtn);
+                    listElement.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Помилка завантаження списку:', error);
+            }
+        }
+
+        // Запуск при завантаженні сторінки
+        loadFiles();
+
+        // ==========================================
+        // 3. ПРАВИЛЬНИЙ ВИХІД З АКАУНТУ (LOGOUT)
+        // ==========================================
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            // Оскільки кука HttpOnly, JavaScript не може її видалити. 
+            // Треба попросити сервер зробити це.
+            await fetch('/api/users/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+</html>
