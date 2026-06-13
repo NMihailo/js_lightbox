@@ -1,193 +1,512 @@
-/* public/style.css */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+/* ==========================================
+   CSS ЗМІННІ (Для ідеального поєднання кольорів)
+   ========================================== */
+:root {
+    --sidebar-bg: #0f172a;
+    /* Глибокий темний для сайдбару */
+    --sidebar-hover: #1e293b;
+    --sidebar-text: #94a3b8;
+    --sidebar-active: #ffffff;
+    --sidebar-accent: #38bdf8;
+    /* Неоновий синій під логотип */
+
+    --main-bg: #f8fafc;
+    /* Світлий простір для роботи */
+    --card-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #64748b;
+
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --border-color: #e2e8f0;
 }
 
-.auth-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    text-align: center;
-}
-
-input {
-    width: 90%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button:hover {
-    background-color: #218838;
-}
-
-#message {
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-.error {
-    color: red;
-}
-
-.success {
-    color: green;
-}
-
-/* Базові налаштування (якщо їх ще немає) */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f3f4f6;
-    /* Світло-сірий фон, як на сторінці логіну */
-    color: #333;
     margin: 0;
-    padding: 40px 20px;
+    padding: 0;
+    background-color: var(--main-bg);
+    color: var(--text-main);
 }
 
-/* Головний контейнер по центру */
-.dashboard-container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-/* Шапка з кнопкою виходу */
-.dashboard-header {
+/* ==========================================
+   МАКЕТ: САЙДБАР + РОБОЧА ЗОНА
+   ========================================== */
+.app-container {
     display: flex;
-    justify-content: space-between;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* БІЧНА ПАНЕЛЬ */
+.sidebar {
+    width: 280px;
+    background-color: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    color: var(--sidebar-text);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.logo-area {
+    padding: 25px 20px;
+    display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.dashboard-header h1 {
+.logo-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    /* Неонове світіння навколо лого */
+    object-fit: cover;
+}
+
+.logo-text h2 {
     margin: 0;
-    color: #1f2937;
+    color: white;
+    font-size: 20px;
+    letter-spacing: 0.5px;
 }
 
-/* Стиль для карток */
+.badge {
+    font-size: 11px;
+    background-color: rgba(56, 189, 248, 0.15);
+    color: var(--sidebar-accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 25px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-item i {
+    font-size: 20px;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background-color: var(--sidebar-hover);
+    color: var(--sidebar-active);
+}
+
+.nav-item.active {
+    border-left-color: var(--sidebar-accent);
+}
+
+.sidebar-bottom {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-request-quota {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px dashed var(--sidebar-text);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-request-quota:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: var(--sidebar-hover);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, var(--sidebar-accent), #8b5cf6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.user-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-role {
+    font-size: 12px;
+}
+
+.btn-icon-logout {
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.btn-icon-logout:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================
+   РОБОЧА ЗОНА (СВІТЛА)
+   ========================================== */
+.main-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 40px;
+    position: relative;
+}
+
+.view-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.view-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    margin: 0 0 5px 0;
+    font-size: 28px;
+}
+
+.text-muted {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* ==========================================
+   КАРТКИ ТА ЕЛЕМЕНТИ
+   ========================================== */
 .upload-card,
 .files-card {
-    background: white;
+    background: var(--card-bg);
     padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--border-color);
 }
 
-/* Форма завантаження */
-.upload-form {
+.quota-container {
+    margin-bottom: 10px;
+}
+
+.quota-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.quota-percent {
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+.progress-bg {
+    width: 100%;
+    background-color: #e2e8f0;
+    border-radius: 10px;
+    height: 12px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary);
+    width: 0%;
+    transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.upload-form,
+.folder-form {
     display: flex;
     gap: 15px;
     align-items: center;
 }
 
-.file-input {
+.file-input-wrapper {
     flex-grow: 1;
-    padding: 10px;
-    border: 1px dashed #d1d5db;
-    border-radius: 6px;
-    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    background: var(--main-bg);
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+}
+
+.file-input {
+    width: 100%;
     cursor: pointer;
 }
 
-/* Кнопки */
+.custom-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+}
+
+.custom-input:focus {
+    border-color: var(--primary);
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 20px 0;
+}
+
+/* ==========================================
+   КНОПКИ ТА СПИСКИ ФАЙЛІВ
+   ========================================== */
 button {
-    cursor: pointer;
+    font-family: inherit;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-weight: 600;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
 }
 
 .btn-primary {
-    background-color: #10b981;
-    /* Зелений */
+    background: var(--primary);
+    color: white;
+    padding: 10px 20px;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-success {
+    background: #3b82f6;
     color: white;
     padding: 12px 20px;
 }
 
-.btn-primary:hover {
-    background-color: #059669;
+.btn-success:hover {
+    background: #2563eb;
 }
 
-.btn-logout {
-    background-color: #ef4444;
+.btn-secondary {
+    background: #64748b;
     color: white;
-    padding: 8px 16px;
+    padding: 8px 15px;
 }
 
-/* Список файлів */
+.btn-icon-primary,
+.btn-icon-secondary,
+.btn-icon-danger {
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.btn-icon-primary {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.btn-icon-primary:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-icon-secondary {
+    background: #f3e8ff;
+    color: #8b5cf6;
+}
+
+.btn-icon-secondary:hover {
+    background: #8b5cf6;
+    color: white;
+}
+
+.btn-icon-danger {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.btn-icon-danger:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Фільтри */
+.files-header-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filters-row {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+    justify-content: flex-end;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: var(--main-bg);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0 10px;
+    flex-grow: 1;
+    max-width: 300px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    padding: 10px;
+    width: 100%;
+    outline: none;
+}
+
+.custom-select {
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Список */
 .file-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-/* Кожен файл у списку (Flexbox магія) */
-.file-list li {
+.file-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.file-list-item:hover {
+    background-color: var(--main-bg);
+}
+
+.file-list-item:last-child {
+    border-bottom: none;
+}
+
+.item-info {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    /* Розсуває елементи по краях */
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-/* Текст назви файлу забирає весь вільний простір */
-.file-list li span {
+    gap: 15px;
     flex-grow: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    cursor: pointer;
 }
 
-/* Кнопки дій з файлом */
-.file-list li button {
-    padding: 8px 12px;
-    margin-left: 10px;
-    font-size: 14px;
+.item-meta {
+    display: flex;
+    flex-direction: column;
 }
 
-.file-list li button:first-of-type {
-    background-color: #3b82f6;
-    /* Синій для скачування */
-    color: white;
+.item-name {
+    font-weight: 600;
+    color: var(--text-main);
 }
 
-.file-list li button:last-of-type {
-    background-color: #fee2e2;
-    /* Блідо-червоний для видалення */
-    color: #ef4444;
+.item-size {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
 }
 
-.file-list li button:last-of-type:hover {
-    background-color: #fca5a5;
-    color: white;
+.item-actions {
+    display: flex;
+    gap: 10px;
 }
 
-/* Повідомлення під формою */
-.message {
-    margin: 15px 0 0 0;
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    color: var(--text-muted);
 }

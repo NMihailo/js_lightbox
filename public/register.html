@@ -3,68 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація - Lightbox</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Lightbox - Реєстрація</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div class="auth-container">
-        <h2>Реєстрація</h2>
-        
-        <form id="registerForm">
-            <input type="text" id="username" placeholder="Логін" required>
-            <input type="password" id="password" placeholder="Пароль" required>
-            <button type="submit">Створити акаунт</button>
-        </form>
-
-        <p id="message"></p>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <h1>Створити акаунт 🚀</h1>
+            <form id="registerForm" class="auth-form">
+                <input type="text" id="username" class="auth-input" placeholder="Введіть логін" required autocomplete="off">
+                <input type="password" id="password" class="auth-input" placeholder="Придумайте пароль" required>
+                <button type="submit" class="auth-btn">Зареєструватися</button>
+            </form>
+            <p id="message" class="message"></p>
+            
+            <div class="switch-link">
+                Вже маєте корпоративний акаунт? <br><a href="/login.html">Увійти в систему</a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Знаходимо форму та блок повідомлень
-        const form = document.getElementById('registerForm');
-        const messageBox = document.getElementById('message');
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageEl = document.getElementById('message');
+            const submitBtn = e.target.querySelector('button');
 
-        // Що робити, коли користувач натискає "Створити акаунт"
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Зупиняємо стандартне перезавантаження сторінки
-            
-            // Збираємо дані з полів вводу
-            const usernameValue = document.getElementById('username').value;
-            const passwordValue = document.getElementById('password').value;
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
+            messageEl.textContent = 'Створення акаунту...';
+            messageEl.style.color = '#6b7280';
 
             try {
-                // Відправляємо POST запит на наш бекенд
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: usernameValue,
-                        password: passwordValue
-                    })
+                    body: JSON.stringify({ username, password })
                 });
-
-                // Чекаємо на відповідь від сервера
+                
                 const data = await response.json();
-
-                // Якщо сервер повернув помилку (наприклад, логін зайнятий)
-                if (!response.ok) {
-                    messageBox.className = 'error';
-                    messageBox.innerText = data.error;
+                
+                if (response.ok) {
+                    messageEl.style.color = '#10b981';
+                    messageEl.textContent = data.message || 'Акаунт успішно створено!';
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 1000);
                 } else {
-                    // Якщо реєстрація успішна
-                    messageBox.className = 'success';
-                    messageBox.innerText = data.message;
-                    form.reset(); // Очищаємо поля
+                    messageEl.style.color = '#ef4444';
+                    messageEl.textContent = data.error || 'Помилка реєстрації';
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
                 }
-
             } catch (error) {
-                console.error('Помилка з\'єднання:', error);
-                messageBox.className = 'error';
-                messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
+                messageEl.style.color = '#ef4444';
+                messageEl.textContent = 'Помилка з\'єднання із сервером';
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
             }
         });
     </script>
-
 </body>
 </html>

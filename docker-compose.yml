@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. Наша база даних MySQL (наш "холодильник")
+  db:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306" # Відкриваємо порт, щоб ти міг підключатися через MySQL Workbench
+    environment:
+      MYSQL_ROOT_PASSWORD: nestorm187
+      MYSQL_DATABASE: lightbox
+    volumes:
+      - db_data:/var/lib/mysql # Зберігаємо дані надійно
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Автоматична ініціалізація БД
+
+  # --- НАШ НОВИЙ КОНТЕЙНЕР (Блокнот в оперативці) ---
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379" # Відкриваємо порт, щоб ти міг за потреби дивитися, що всередині
+
+  # 2. Наш Node.js сервер
+  app:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=redis # Кажемо серверу, що Redis живе в сусідньому контейнері
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - db
+      - redis # Node.js почекає, поки запуститься Redis
+    command: npx nodemon --ignore uploads/ server.js
+    # 3. Наш Nginx (Метрдотель / Зворотний проксі)
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80" # Відкриваємо стандартний веб-порт для користувачів
+    volumes:
+      # Прокидаємо файл налаштувань всередину контейнера Nginx
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app # Nginx запуститься тільки після того, як підніметься Node.js
+
+# Реєструємо віртуальний жорсткий диск
+volumes:
+  db_data:

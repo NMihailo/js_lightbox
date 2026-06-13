@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightbox - Кошик</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Кошик 🗑</h1>
+            <div>
+                <button onclick="window.location.href='/index.html'" class="btn-primary" style="background-color: #6b7280; margin-right: 10px;">⬅ До файлів</button>
+                <button id="logoutBtn" class="btn-logout">Вийти</button>
+            </div>
+        </div>
+
+        <div class="files-card">
+            <p style="color: #6b7280; font-size: 14px;">Тут знаходяться видалені файли. Вони все ще займають пам'ять вашої квоти, поки ви не видалите їх остаточно.</p>
+            <ul id="trash-list" class="file-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        function formatBytes(bytes) {
+            if (bytes === 0 || !bytes) return '0 Байт';
+            const k = 1024;
+            const sizes = ['Байт', 'КБ', 'МБ', 'ГБ'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        const trashList = document.getElementById('trash-list');
+
+        async function loadTrash() {
+            try {
+                const response = await fetch('/api/trash');
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+                trashList.innerHTML = '';
+
+                if (data.folders.length === 0 && data.files.length === 0) {
+                    trashList.innerHTML = '<li>Кошик порожній.</li>';
+                    return;
+                }
+
+                // Малюємо папки в кошику
+                data.folders.forEach(folder => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span style="flex-grow: 1;">📁 <strong>${folder.name}</strong></span>
+                        <button style="background-color: #10b981; color: white;" onclick="restoreFolder(${folder.id})">♻️ Відновити</button>
+                        <button style="background-color: #ef4444; color: white;" onclick="hardDeleteFolder(${folder.id}, '${folder.name}')">🔥 Знищити</button>
+                    `;
+                    trashList.appendChild(li);
+                });
+
+                // Малюємо файли в кошику
+                data.files.forEach(file => {
+                    const li = document.createElement('li');
+                    const sizeStr = formatBytes(file.size_bytes);
+                    li.innerHTML = `
+                        <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                            <strong>${file.encrypted_original_name}</strong>
+                            <span style="font-size: 12px; color: #6b7280;">${sizeStr}</span>
+                        </div>
+                        <button style="background-color: #10b981; color: white;" onclick="restoreFile('${file.disk_name}')">♻️ Відновити</button>
+                        <button style="background-color: #ef4444; color: white;" onclick="hardDeleteFile('${file.disk_name}')">🔥 Знищити</button>
+                    `;
+                    trashList.appendChild(li);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function restoreFile(filename) {
+            await fetch(`/api/trash/restore-file/${filename}`, { method: 'PUT' });
+            loadTrash();
+        }
+
+        async function restoreFolder(id) {
+            await fetch(`/api/trash/restore-folder/${id}`, { method: 'PUT' });
+            loadTrash();
+        }
+
+        async function hardDeleteFile(filename) {
+            if (confirm('Остаточно видалити файл? Це неможливо скасувати, але пам\'ять звільниться.')) {
+                await fetch(`/api/trash/hard-delete-file/${filename}`, { method: 'DELETE' });
+                loadTrash();
+            }
+        }
+
+        async function hardDeleteFolder(id, name) {
+            if (confirm(`Остаточно видалити папку "${name}" і всі файли в ній?`)) {
+                await fetch(`/api/trash/hard-delete-folder/${id}`, { method: 'DELETE' });
+                loadTrash();
+            }
+        }
+
+        loadTrash();
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await fetch('/api/users/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+</html>

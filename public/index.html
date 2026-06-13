@@ -3,184 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightbox - Головна</title>
+    <title>Lightbox - Cloud Storage</title>
     <link rel="stylesheet" href="style.css">
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1>Мій Lightbox 🚀</h1>
-            <button id="logoutBtn" class="btn-logout">Вийти</button>
-        </div>
+    <div class="app-container">
         
-        <div class="upload-card">
-            <form id="uploadForm" class="upload-form">
-                <input type="file" id="fileInput" class="file-input" required>
-                <button type="submit" class="btn-primary">Завантажити на сервер</button>
-            </form>
-            <p id="uploadMessage" class="message"></p>
-        </div>
+        <aside class="sidebar">
+            <div class="logo-area">
+                <img src="images/lightbox_logo.png" alt="Lightbox Logo" class="logo-img">
+                <div class="logo-text">
+                    <h2>Lightbox</h2>
+                    <span class="badge">Приватне підприємство</span>
+                </div>
+            </div>
 
-        <div class="files-card">
-            <h2>Сховище файлів</h2>
-            <ul id="file-list" class="file-list"></ul>
-        </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchView('dashboard', this)"><i class='bx bx-grid-alt'></i> Головна</a>
+                <a href="#" class="nav-item" onclick="switchView('files', this)"><i class='bx bx-folder'></i> Моє сховище</a>
+                <a href="#" class="nav-item" onclick="switchView('trash', this)"><i class='bx bx-trash'></i> Кошик</a>
+                <a href="#" class="nav-item" id="adminNavBtn" style="display:none;" onclick="switchView('admin', this)"><i class='bx bx-shield-quarter'></i> Панель керування</a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <button class="btn-request-quota" onclick="requestStorage()">
+                    <i class='bx bx-cloud-upload'></i> Запит пам'яті
+                </button>
+                <div class="user-profile">
+                    <div class="avatar">МН</div>
+                    <div class="user-info">
+                        <span class="user-name">Mihailo Nestor</span>
+                        <span class="user-role" id="userRoleText">Співробітник</span>
+                    </div>
+                    <button id="logoutBtn" class="btn-icon-logout" title="Вийти"><i class='bx bx-log-out'></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <section id="view-dashboard" class="view-section active">
+                <div class="page-header">
+                    <h1>Вітаємо у Lightbox 👋</h1>
+                    <p class="text-muted">Огляд вашого хмарного простору</p>
+                </div>
+
+                <div class="upload-card">
+                    <div class="quota-container">
+                        <div class="quota-header">
+                            <span id="quota-text"><i class='bx bx-hdd'></i> Завантаження пам'яті...</span>
+                            <span id="quota-percentage" class="quota-percent">0%</span>
+                        </div>
+                        <div class="progress-bg">
+                            <div id="quota-bar" class="progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                </section>
+
+            <section id="view-files" class="view-section">
+                <div class="page-header">
+                    <h1>Моє сховище 📁</h1>
+                    <p class="text-muted">Керування папками та файлами</p>
+                </div>
+
+                <div class="upload-card" style="margin-bottom: 20px;">
+                    <form id="uploadForm" class="upload-form">
+                        <div class="file-input-wrapper">
+                            <i class='bx bx-cloud-upload' style="font-size: 24px; color: #6b7280; margin-right: 10px;"></i>
+                            <input type="file" id="fileInput" class="file-input" required>
+                        </div>
+                        <button type="submit" class="btn-primary"><i class='bx bx-upload'></i> Завантажити</button>
+                    </form>
+
+                    <hr class="divider">
+
+                    <form id="createFolderForm" class="folder-form">
+                        <i class='bx bx-folder-plus' style="font-size: 24px; color: #6b7280;"></i>
+                        <input type="text" id="folderNameInput" placeholder="Назва нової папки" required class="custom-input">
+                        <button type="submit" class="btn-success">Створити</button>
+                    </form>
+                </div>
+
+                <div class="files-card">
+                    <div class="files-header-actions">
+                        <div id="navigation-bar" style="display: none;">
+                            <button id="backBtn" class="btn-secondary"><i class='bx bx-arrow-back'></i> Назад</button>
+                        </div>
+                        <div class="filters-row">
+                            <div class="search-box">
+                                <i class='bx bx-search'></i>
+                                <input type="text" id="searchInput" placeholder="Пошук...">
+                            </div>
+                            <select id="filterSelect" class="custom-select">
+                                <option value="all">Всі файли</option>
+                                <option value="images">Фотографії</option>
+                                <option value="docs">Документи</option>
+                                <option value="videos">Відео</option>
+                            </select>
+                            <select id="sortSelect" class="custom-select">
+                                <option value="newest">Спочатку нові</option>
+                                <option value="largest">Спочатку великі</option>
+                                <option value="az">За алфавітом</option>
+                            </select>
+                        </div>
+                    </div>
+                    <ul id="file-list" class="file-list"></ul>
+                </div>
+            </section>
+
+            <section id="view-trash" class="view-section">
+                <div class="page-header">
+                    <h1>Кошик 🗑️</h1>
+                    <p class="text-muted">Тут знаходяться видалені файли. Вони все ще займають місце на диску.</p>
+                </div>
+                <div class="files-card">
+                    <ul id="trash-list" class="file-list">
+                        <li style="justify-content: center; color: #6b7280;">Завантаження кошика...</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
     </div>
 
     <script>
-        const messageBox = document.getElementById('uploadMessage');
+        // SPA Навігація (Перемикання вкладок)
+        function switchView(viewId, clickedElement) {
+            // Ховаємо всі секції
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            // Показуємо потрібну
+            document.getElementById(`view-${viewId}`).classList.add('active');
+
+            // Змінюємо активний клас в меню
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if(clickedElement) clickedElement.classList.add('active');
+
+            // Додаткові дії при переході
+            if (viewId === 'files') loadFiles();
+            if (viewId === 'dashboard') loadQuota();
+            if (viewId === 'trash') loadTrash(); // Цю функцію напишемо пізніше
+        }
+
+        // --- SweetAlert2 (Запит на квоту) ---
+        function requestStorage() {
+            Swal.fire({
+                title: 'Запит на розширення пам\'яті',
+                input: 'textarea',
+                inputLabel: 'Коротко опишіть, для якого проєкту потрібне місце',
+                inputPlaceholder: 'Наприклад: Потрібно додатково 5 ГБ для збереження відео-рендерів...',
+                showCancelButton: true,
+                confirmButtonText: '<i class="bx bx-send"></i> Відправити адміністратору',
+                cancelButtonText: 'Скасувати',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    // Тут пізніше зробимо запит на бекенд
+                    Swal.fire('Відправлено!', 'Ваш запит передано адміністратору. Очікуйте на погодження.', 'success');
+                }
+            });
+        }
+
+
+        // ==========================================
+        // Твій старий робочий JS код залишається майже без змін
+        // ==========================================
+        let currentFolderId = null;
+        let folderHistory = [];
+        let globalFolders = []; 
+        let globalFiles = [];  
+
+        function formatBytes(bytes) {
+            if (bytes === 0 || !bytes) return '0 Байт';
+            const k = 1024;
+            const sizes = ['Байт', 'КБ', 'МБ', 'ГБ'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
         const listElement = document.getElementById('file-list');
+        const navBar = document.getElementById('navigation-bar');
 
-        // ==========================================
-        // 1. ЛОГІКА ЗАВАНТАЖЕННЯ ФАЙЛУ
-        // ==========================================
-        const uploadForm = document.getElementById('uploadForm');
+        document.getElementById('searchInput').addEventListener('input', renderFiles);
+        document.getElementById('filterSelect').addEventListener('change', renderFiles);
+        document.getElementById('sortSelect').addEventListener('change', renderFiles);
 
-        uploadForm.addEventListener('submit', async (event) => {
+        async function loadQuota() {
+            try {
+                const response = await fetch('/quota');
+                if (!response.ok) return;
+                const data = await response.json();
+                const used = Number(data.used_space);
+                const total = Number(data.total_space);
+                const percentage = total > 0 ? (used / total) * 100 : 0;
+
+                document.getElementById('quota-text').innerHTML = `<i class='bx bx-hdd'></i> Використано <strong>${formatBytes(used)}</strong> із ${formatBytes(total)}`;
+                document.getElementById('quota-percentage').textContent = `${percentage.toFixed(1)}%`;
+
+                const bar = document.getElementById('quota-bar');
+                bar.style.width = `${percentage}%`;
+
+                if (percentage > 90) bar.style.backgroundColor = '#ef4444';
+                else if (percentage > 75) bar.style.backgroundColor = '#f59e0b';
+                else bar.style.backgroundColor = '#10b981';
+            } catch (error) { console.error(error); }
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
             event.preventDefault();
-
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) return;
 
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
+            if (currentFolderId) formData.append('folder_id', currentFolderId);
+
+            // Використовуємо SweetAlert для процесу завантаження
+            Swal.fire({
+                title: 'Завантаження...',
+                text: 'Будь ласка, зачекайте.',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
 
             try {
-                // БРАУЗЕР ТЕПЕР САМ ДОДАСТЬ КУКУ, HEADERS БІЛЬШЕ НЕ ПОТРІБНІ!
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
+                const response = await fetch('/upload', { method: 'POST', body: formData });
                 const data = await response.json();
 
                 if (!response.ok) {
-                    messageBox.style.color = 'red';
-                    messageBox.innerText = data.error || 'Помилка завантаження';
-                    
-                    if (response.status === 401 || response.status === 403) {
-                        setTimeout(() => { window.location.href = '/login.html'; }, 2000);
-                    }
+                    Swal.fire('Помилка', data.error || 'Помилка завантаження', 'error');
                 } else {
-                    messageBox.style.color = 'green';
-                    messageBox.innerText = data.message;
-                    uploadForm.reset();
-                    loadFiles(); // Оновлюємо список
+                    Swal.fire('Успіх!', data.message, 'success');
+                    document.getElementById('uploadForm').reset();
+                    loadFiles();
+                    loadQuota();
                 }
             } catch (error) {
-                console.error('Помилка:', error);
-                messageBox.style.color = 'red';
-                messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
+                Swal.fire('Помилка', 'Втрачено з\'єднання з сервером', 'error');
             }
         });
 
-        // ==========================================
-        // 2. ЛОГІКА ВІДОБРАЖЕННЯ, СКАЧУВАННЯ ТА ВИДАЛЕННЯ
-        // ==========================================
+        document.getElementById('createFolderForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const folderName = document.getElementById('folderNameInput').value;
+            try {
+                const response = await fetch('/folders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: folderName, parent_id: currentFolderId })
+                });
+                if (response.ok) {
+                    document.getElementById('createFolderForm').reset();
+                    loadFiles();
+                    Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Папку створено'});
+                }
+            } catch (error) { console.error(error); }
+        });
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            if (folderHistory.length > 0) {
+                currentFolderId = folderHistory.pop();
+                document.getElementById('searchInput').value = '';
+                loadFiles();
+            }
+        });
+
         async function loadFiles() {
             try {
-                // Запит до БД (кука полетить автоматично)
-                const response = await fetch('/files');
-
-                // Якщо бекенд каже 401 - значить куки немає або вона прострочена
+                let url = '/files';
+                if (currentFolderId) url += `?folder_id=${currentFolderId}`;
+                const response = await fetch(url, { cache: 'no-store' });
                 if (response.status === 401 || response.status === 403) {
                     window.location.href = '/login.html';
                     return;
                 }
-
-                if (!response.ok) return;
-
-                const files = await response.json();
-                listElement.innerHTML = '';
-
-                if (files.length === 0) {
-                    listElement.innerHTML = '<li>У вас поки немає завантажених файлів.</li>';
-                    return;
-                }
-
-                files.forEach(file => {
-                    const li = document.createElement('li');
-                    li.style.marginBottom = '15px';
-                    li.style.display = 'flex';
-                    li.style.alignItems = 'center';
-
-                    const fileNameText = document.createElement('span');
-                    fileNameText.textContent = file.encrypted_original_name;
-                    fileNameText.style.marginRight = '15px';
-                    fileNameText.style.fontWeight = 'bold';
-
-                    const downloadBtn = document.createElement('button');
-                    downloadBtn.textContent = '⬇ Скачати';
-                    downloadBtn.onclick = async () => {
-                        try {
-                            // Скачування без headers!
-                            const dlResponse = await fetch(`/download/${file.disk_name}`);
-                            
-                            if (dlResponse.ok) {
-                                const blob = await dlResponse.blob();
-                                const url = window.URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = file.encrypted_original_name;
-                                document.body.appendChild(a);
-                                a.click();
-                                a.remove();
-                                window.URL.revokeObjectURL(url);
-                            } else {
-                                alert('Помилка доступу при скачуванні.');
-                            }
-                        } catch (error) {
-                            alert('Не вдалося скачати файл.');
-                        }
-                    };
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = '❌ Видалити';
-                    deleteBtn.style.marginLeft = '10px';   
-                    deleteBtn.onclick = async () => {
-                        if (confirm('Точно видалити цей файл?')) {
-                            try {
-                                // Видалення тільки з методом DELETE, без headers!
-                                const delResponse = await fetch(`/delete/${file.disk_name}`, { 
-                                    method: 'DELETE'
-                                });
-                                
-                                if (delResponse.ok) {
-                                    li.remove();
-                                    if (listElement.children.length === 0) {
-                                        listElement.innerHTML = '<li>У вас поки немає завантажених файлів.</li>';
-                                    }
-                                } else {
-                                    alert('Помилка доступу при видаленні');
-                                }
-                            } catch (error) {
-                                alert('Не вдалося видалити файл');
-                            }
-                        }
-                    };
-
-                    li.appendChild(fileNameText);
-                    li.appendChild(downloadBtn);
-                    li.appendChild(deleteBtn);
-                    listElement.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Помилка завантаження списку:', error);
-            }
+                const data = await response.json();
+                globalFolders = data.folders || [];
+                globalFiles = data.files || [];
+                renderFiles();
+            } catch (error) { console.error(error); }
         }
 
-        // Запуск при завантаженні сторінки
+        function renderFiles() {
+            listElement.innerHTML = '';
+            navBar.style.display = currentFolderId ? 'block' : 'none';
+
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const filterType = document.getElementById('filterSelect').value;
+            const sortType = document.getElementById('sortSelect').value;
+
+            let filteredFolders = globalFolders.filter(f => f.name.toLowerCase().includes(searchQuery));
+            let filteredFiles = globalFiles.filter(f => f.encrypted_original_name.toLowerCase().includes(searchQuery));
+
+            if (filterType !== 'all') {
+                filteredFolders = []; 
+                filteredFiles = filteredFiles.filter(f => {
+                    const ext = f.encrypted_original_name.split('.').pop().toLowerCase();
+                    if (filterType === 'images') return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+                    if (filterType === 'docs') return ['txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(ext);
+                    if (filterType === 'videos') return ['mp4', 'webm', 'avi', 'mov', 'mkv'].includes(ext);
+                    return true;
+                });
+            }
+
+            filteredFiles.sort((a, b) => {
+                if (sortType === 'newest') return new Date(b.uploaded_at || 0) - new Date(a.uploaded_at || 0);
+                if (sortType === 'largest') return b.size_bytes - a.size_bytes;
+                if (sortType === 'az') return a.encrypted_original_name.localeCompare(b.encrypted_original_name);
+                return 0;
+            });
+
+            if (filteredFolders.length === 0 && filteredFiles.length === 0) {
+                listElement.innerHTML = '<li class="empty-state"><i class="bx bx-ghost" style="font-size: 40px; margin-bottom: 10px;"></i><br>Тут поки порожньо</li>';
+                return;
+            }
+
+            filteredFolders.forEach(folder => {
+                const li = document.createElement('li');
+                li.className = 'file-list-item';
+                
+                const folderInfo = document.createElement('div');
+                folderInfo.className = 'item-info';
+                folderInfo.innerHTML = `<i class='bx bxs-folder' style="color: #3b82f6; font-size: 24px;"></i> <strong class="item-name">${folder.name}</strong>`;
+                folderInfo.onclick = () => {
+                    folderHistory.push(currentFolderId); 
+                    currentFolderId = folder.id;
+                    document.getElementById('searchInput').value = '';
+                    loadFiles();                        
+                };
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-icon-danger';
+                deleteBtn.innerHTML = '<i class="bx bx-trash"></i>';
+                deleteBtn.onclick = async (event) => {
+                    event.stopPropagation(); 
+                    Swal.fire({
+                        title: 'Видалити папку?',
+                        text: `Папку "${folder.name}" буде переміщено у кошик.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'Так, видалити',
+                        cancelButtonText: 'Скасувати'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await fetch(`/folders/${folder.id}`, { method: 'DELETE' });
+                                if (response.ok) {
+                                    loadFiles();
+                                    Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Переміщено у кошик'});
+                                }
+                            } catch (error) { console.error(error); }
+                        }
+                    });
+                };
+
+                li.appendChild(folderInfo);
+                li.appendChild(deleteBtn);
+                listElement.appendChild(li);
+            });
+
+            filteredFiles.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'file-list-item';
+
+                const fileInfo = document.createElement('div');
+                fileInfo.className = 'item-info';
+                
+                const ext = file.encrypted_original_name.split('.').pop().toLowerCase();
+                let iconClass = 'bx-file';
+                let iconColor = '#6b7280';
+                if(['jpg', 'png', 'jpeg'].includes(ext)) { iconClass = 'bx-image'; iconColor = '#10b981'; }
+                else if(['mp4', 'mkv', 'avi'].includes(ext)) { iconClass = 'bx-video'; iconColor = '#8b5cf6'; }
+                else if(['pdf', 'doc', 'docx'].includes(ext)) { iconClass = 'bx-file-blank'; iconColor = '#ef4444'; }
+
+                const sizeStr = formatBytes(file.size_bytes);
+                const dateStr = file.uploaded_at ? new Date(file.uploaded_at).toLocaleDateString('uk-UA') : '';
+
+                fileInfo.innerHTML = `
+                    <i class='bx ${iconClass}' style="color: ${iconColor}; font-size: 24px;"></i>
+                    <div class="item-meta">
+                        <span class="item-name">${file.encrypted_original_name}</span>
+                        <span class="item-size">${sizeStr} • ${dateStr}</span>
+                    </div>
+                `;
+
+                const buttonsContainer = document.createElement('div');
+                buttonsContainer.className = 'item-actions';
+
+                const previewableExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'pdf', 'txt'];
+                if (previewableExts.includes(ext)) {
+                    const previewBtn = document.createElement('button');
+                    previewBtn.className = 'btn-icon-secondary';
+                    previewBtn.innerHTML = '<i class="bx bx-show"></i>';
+                    previewBtn.title = 'Переглянути';
+                    previewBtn.onclick = () => { window.open(`/preview/${file.disk_name}`, '_blank'); };
+                    buttonsContainer.appendChild(previewBtn);
+                }
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'btn-icon-primary';
+                downloadBtn.innerHTML = '<i class="bx bx-download"></i>';
+                downloadBtn.title = 'Скачати';
+                downloadBtn.onclick = async () => {
+                    try {
+                        const dlResponse = await fetch(`/download/${file.disk_name}`);
+                        if (dlResponse.ok) {
+                            const blob = await dlResponse.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = file.encrypted_original_name;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                        } else Swal.fire('Помилка', 'Не вдалося скачати', 'error');
+                    } catch (e) { console.error(e); }
+                };
+                buttonsContainer.appendChild(downloadBtn);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-icon-danger';
+                deleteBtn.innerHTML = '<i class="bx bx-trash"></i>';
+                deleteBtn.title = 'Видалити';
+                deleteBtn.onclick = async () => {
+                    Swal.fire({
+                        title: 'Перемістити у кошик?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'Так',
+                        cancelButtonText: 'Ні'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            const delResponse = await fetch(`/delete/${file.disk_name}`, { method: 'DELETE' });
+                            if (delResponse.ok) {
+                                loadFiles();
+                                Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Видалено'});
+                            }
+                        }
+                    });
+                };
+                buttonsContainer.appendChild(deleteBtn);
+
+                li.appendChild(fileInfo);
+                li.appendChild(buttonsContainer);
+                listElement.appendChild(li);
+            });
+        }
+
+        // Ініціалізація першої вкладки
+        loadQuota();
         loadFiles();
 
-        // ==========================================
-        // 3. ПРАВИЛЬНИЙ ВИХІД З АКАУНТУ (LOGOUT)
-        // ==========================================
         document.getElementById('logoutBtn').addEventListener('click', async () => {
-            // Оскільки кука HttpOnly, JavaScript не може її видалити. 
-            // Треба попросити сервер зробити це.
             await fetch('/api/users/logout', { method: 'POST' });
             window.location.href = '/login.html';
         });
+
+        // Заглушка для відображення кошика (повну логіку додамо згодом)
+        async function loadTrash() {
+            document.getElementById('trash-list').innerHTML = '<li style="justify-content: center; color: #6b7280; padding: 20px;">Завантаження...</li>';
+            try {
+                const response = await fetch('/api/trash');
+                if (response.ok) {
+                    // Логіка відмальовки кошика
+                    document.getElementById('trash-list').innerHTML = '<li style="justify-content: center; color: #6b7280; padding: 20px;">Кошик поки працює в тестовому режимі</li>';
+                }
+            } catch (e) { console.error(e); }
+        }
     </script>
 </body>
 </html>

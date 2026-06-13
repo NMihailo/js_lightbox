@@ -7,20 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <h1>Вхід у Lightbox 🔐</h1>
+            
+            <form id="loginForm" class="auth-form">
+                <input type="text" id="username" class="auth-input" placeholder="Введіть логін" required autocomplete="off">
+                <input type="password" id="password" class="auth-input" placeholder="Введіть пароль" required>
+                <button type="submit" class="auth-btn">Увійти</button>
+            </form>
 
-    <div class="auth-container">
-        <h2>Вхід у Lightbox</h2>
-        
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Логін" required>
-            <input type="password" id="password" placeholder="Пароль" required>
-            <button type="submit">Увійти</button>
-        </form>
-
-        <p id="message"></p>
-        
-        <div style="margin-top: 15px; font-size: 14px;">
-            Ще немає акаунту? <a href="/register.html">Зареєструватися</a>
+            <p id="message" class="message"></p>
+            
+            <div class="switch-link">
+                Ще немає корпоративного акаунту? <br><a href="/register.html">Створити акаунт</a>
+            </div>
         </div>
     </div>
 
@@ -33,6 +34,10 @@
             
             const usernameValue = document.getElementById('username').value;
             const passwordValue = document.getElementById('password').value;
+            const submitBtn = event.target.querySelector('button');
+
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.7';
 
             try {
                 const response = await fetch('/api/users/login', {
@@ -47,27 +52,25 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    messageBox.className = 'error';
-                    messageBox.innerText = data.error;
+                    messageBox.style.color = '#ef4444';
+                    messageBox.innerText = data.error || 'Помилка входу';
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
                 } else {
-                    // НАЙГОЛОВНІШИЙ МОМЕНТ АВТОРИЗАЦІЇ!
-                    // Зберігаємо наш JWT-токен у пам'ять браузера
-                    localStorage.setItem('lightbox_token', data.token);
-                    
-                    messageBox.className = 'success';
-                    messageBox.innerText = data.message + ' Токен отримано!';
-                    
-                    // Тут у майбутньому ми будемо перенаправляти користувача на головну сторінку
-                    // window.location.href = '/index.html'; 
+                    messageBox.style.color = '#10b981';
+                    messageBox.innerText = data.message || 'Успішний вхід!';
+                    setTimeout(() => {
+                        window.location.href = '/index.html'; 
+                    }, 500);
                 }
-
             } catch (error) {
                 console.error('Помилка з\'єднання:', error);
-                messageBox.className = 'error';
+                messageBox.style.color = '#ef4444';
                 messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
             }
         });
     </script>
-
 </body>
 </html>
