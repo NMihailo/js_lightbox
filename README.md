@@ -30,7 +30,7 @@
 ```bash
 git clone [https://github.com/NMihailo/js_lightbox.git](https://github.com/NMihailo/js_lightbox.git)
 cd js_lightbox
-
+```
 ### Крок 2. Запуск інфраструктури в Docker
 ```env
 NODE_ENV=production
@@ -43,8 +43,10 @@ DB_NAME=lightbox
 Запустіть збірку та оркестрацію мікросервісів у **фоновому режимі**:
 ```bash
 docker compose up --build -d
+```
 
 ### Крок 4. Доступ до платформи
 Відкрийте браузер та перейдіть за адресою:
 ```text
 http://localhost
+```
