@@ -5,70 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вхід - Lightbox</title>
     <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
-<body>
+<body class="auth-page">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h1>Вхід у Lightbox 🔐</h1>
             
+            <div class="auth-header">
+                <div class="logo-area" style="justify-content: center; border-bottom: none; padding-bottom: 0; align-items: center; gap: 12px;">
+                    
+                    <img src="images/lightbox_logo.png" alt="Lightbox Logo" style="height: 42px; width: auto; object-fit: contain;">
+                    
+                    <div class="logo-text">
+                        <h2 style="color: var(--text-main); font-size: 28px; margin: 0; font-weight: 700;">Lightbox</h2>
+                    </div>
+                </div>
+                <p class="text-muted" style="text-align: center; margin-top: 12px;">Корпоративне хмарне сховище</p>
+            </div>
+
             <form id="loginForm" class="auth-form">
-                <input type="text" id="username" class="auth-input" placeholder="Введіть логін" required autocomplete="off">
-                <input type="password" id="password" class="auth-input" placeholder="Введіть пароль" required>
-                <button type="submit" class="auth-btn">Увійти</button>
+                
+                <div id="errorMessage" style="color: var(--danger); font-size: 14px; text-align: center; display: none; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Логін</label>
+                    <div class="input-with-icon">
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="username" name="username" class="custom-input" placeholder="Введіть логін" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <div class="input-with-icon">
+                        <i class='bx bx-lock-alt'></i>
+                        <input type="password" id="password" name="password" class="custom-input" placeholder="Введіть пароль" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-success" style="width: 100%; justify-content: center; margin-top: 10px;">
+                    Увійти в систему <i class='bx bx-log-in-circle'></i>
+                </button>
             </form>
 
-            <p id="message" class="message"></p>
-            
-            <div class="switch-link">
-                Ще немає корпоративного акаунту? <br><a href="/register.html">Створити акаунт</a>
+            <div class="divider"></div>
+
+            <div class="auth-footer text-muted" style="text-align: center;">
+                <p style="font-size: 14px; margin-bottom: 5px;">Ще немає корпоративного акаунта?</p>
+                <a href="register.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Створити акаунт</a>
             </div>
+
         </div>
     </div>
 
     <script>
-        const form = document.getElementById('loginForm');
-        const messageBox = document.getElementById('message');
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
 
-        form.addEventListener('submit', async (event) => {
-            event.preventDefault(); 
-            
-            const usernameValue = document.getElementById('username').value;
-            const passwordValue = document.getElementById('password').value;
-            const submitBtn = event.target.querySelector('button');
-
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.7';
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const errorBox = document.getElementById('errorMessage');
 
             try {
                 const response = await fetch('/api/users/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
-                        username: usernameValue,
-                        password: passwordValue
+                        username: usernameInput,
+                        password: passwordInput
                     })
                 });
 
-                const data = await response.json();
+                const result = await response.json();
 
-                if (!response.ok) {
-                    messageBox.style.color = '#ef4444';
-                    messageBox.innerText = data.error || 'Помилка входу';
-                    submitBtn.disabled = false;
-                    submitBtn.style.opacity = '1';
+                if (response.ok) {
+                    window.location.href = '/index.html';
                 } else {
-                    messageBox.style.color = '#10b981';
-                    messageBox.innerText = data.message || 'Успішний вхід!';
-                    setTimeout(() => {
-                        window.location.href = '/index.html'; 
-                    }, 500);
+                    errorBox.style.display = 'block';
+                    errorBox.innerText = result.error;
                 }
             } catch (error) {
-                console.error('Помилка з\'єднання:', error);
-                messageBox.style.color = '#ef4444';
-                messageBox.innerText = 'Не вдалося з\'єднатися з сервером.';
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
+                console.error('Network error:', error);
+                errorBox.style.display = 'block';
+                errorBox.innerText = 'Помилка з\'єднання з сервером';
             }
         });
     </script>

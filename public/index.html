@@ -1,483 +1,2116 @@
 <!DOCTYPE html>
+
 <html lang="uk">
+
+
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Lightbox - Cloud Storage</title>
+
     <link rel="stylesheet" href="style.css">
-    
+
+
+
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
+
+
+
 <body>
+
     <div class="app-container">
-        
+
+
+
         <aside class="sidebar">
+
             <div class="logo-area">
+
                 <img src="images/lightbox_logo.png" alt="Lightbox Logo" class="logo-img">
+
                 <div class="logo-text">
+
                     <h2>Lightbox</h2>
+
                     <span class="badge">Приватне підприємство</span>
+
                 </div>
+
             </div>
+
+
 
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active" onclick="switchView('dashboard', this)"><i class='bx bx-grid-alt'></i> Головна</a>
-                <a href="#" class="nav-item" onclick="switchView('files', this)"><i class='bx bx-folder'></i> Моє сховище</a>
+
+                <a href="#" class="nav-item active" onclick="switchView('dashboard', this)"><i
+                        class='bx bx-grid-alt'></i> Головна</a>
+
+                <a href="#" class="nav-item" onclick="switchView('files', this)"><i class='bx bx-folder'></i> Моє
+
+                    сховище</a>
+
                 <a href="#" class="nav-item" onclick="switchView('trash', this)"><i class='bx bx-trash'></i> Кошик</a>
-                <a href="#" class="nav-item" id="adminNavBtn" style="display:none;" onclick="switchView('admin', this)"><i class='bx bx-shield-quarter'></i> Панель керування</a>
+
+                <a href="#" class="nav-item" id="adminNavBtn" style="display:none;"
+                    onclick="switchView('admin', this)"><i class='bx bx-shield-quarter'></i> Панель керування</a>
+
             </nav>
 
+
+
             <div class="sidebar-bottom">
+
                 <button class="btn-request-quota" onclick="requestStorage()">
+
                     <i class='bx bx-cloud-upload'></i> Запит пам'яті
+
                 </button>
+
                 <div class="user-profile">
-                    <div class="avatar">МН</div>
+
+                    <div class="avatar" id="userAvatar">...</div>
+
                     <div class="user-info">
-                        <span class="user-name">Mihailo Nestor</span>
+
+                        <span class="user-name" id="currentUsername">Завантаження...</span>
+
                         <span class="user-role" id="userRoleText">Співробітник</span>
+
                     </div>
+
                     <button id="logoutBtn" class="btn-icon-logout" title="Вийти"><i class='bx bx-log-out'></i></button>
+
                 </div>
+
             </div>
+
         </aside>
 
+
+
         <main class="main-content">
-            
+
             <section id="view-dashboard" class="view-section active">
+
                 <div class="page-header">
+
                     <h1>Вітаємо у Lightbox 👋</h1>
+
                     <p class="text-muted">Огляд вашого хмарного простору</p>
+
                 </div>
 
-                <div class="upload-card">
+
+
+                <div class="upload-card" style="margin-bottom: 25px;">
+
                     <div class="quota-container">
+
                         <div class="quota-header">
+
                             <span id="quota-text"><i class='bx bx-hdd'></i> Завантаження пам'яті...</span>
+
                             <span id="quota-percentage" class="quota-percent">0%</span>
+
                         </div>
+
                         <div class="progress-bg">
+
                             <div id="quota-bar" class="progress-bar"></div>
+
                         </div>
+
                     </div>
+
                 </div>
 
-                </section>
+
+
+                <h3
+                    style="margin-bottom: 15px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+
+                    <i class='bx bx-time-five' style="color: #3b82f6;"></i> Останні завантаження
+
+                </h3>
+
+                <div class="files-card">
+
+                    <ul id="recent-files-list" class="file-list">
+
+                        <li style="justify-content: center; color: #6b7280; padding: 15px;"><i
+                                class="bx bx-loader bx-spin"></i>
+
+                            Завантаження...</li>
+
+                    </ul>
+
+                </div>
+
+            </section>
+
+
 
             <section id="view-files" class="view-section">
+
                 <div class="page-header">
+
                     <h1>Моє сховище 📁</h1>
+
                     <p class="text-muted">Керування папками та файлами</p>
+
                 </div>
 
+
+
                 <div class="upload-card" style="margin-bottom: 20px;">
+
                     <form id="uploadForm" class="upload-form">
+
                         <div class="file-input-wrapper">
-                            <i class='bx bx-cloud-upload' style="font-size: 24px; color: #6b7280; margin-right: 10px;"></i>
-                            <input type="file" id="fileInput" class="file-input" required>
+
+                            <i class='bx bx-cloud-upload'
+                                style="font-size: 24px; color: #6b7280; margin-right: 10px;"></i>
+
+                            <input type="file" id="fileInput" name="files" class="file-input" multiple required>
+
                         </div>
+
                         <button type="submit" class="btn-primary"><i class='bx bx-upload'></i> Завантажити</button>
+
                     </form>
+
+
 
                     <hr class="divider">
 
+
+
                     <form id="createFolderForm" class="folder-form">
+
                         <i class='bx bx-folder-plus' style="font-size: 24px; color: #6b7280;"></i>
-                        <input type="text" id="folderNameInput" placeholder="Назва нової папки" required class="custom-input">
+
+                        <input type="text" id="folderNameInput" placeholder="Назва нової папки" required
+                            class="custom-input">
+
                         <button type="submit" class="btn-success">Створити</button>
+
                     </form>
+
                 </div>
 
+
+
                 <div class="files-card">
+
                     <div class="files-header-actions">
+
                         <div id="navigation-bar" style="display: none;">
+
                             <button id="backBtn" class="btn-secondary"><i class='bx bx-arrow-back'></i> Назад</button>
+
                         </div>
+
                         <div class="filters-row">
+
                             <div class="search-box">
+
                                 <i class='bx bx-search'></i>
+
                                 <input type="text" id="searchInput" placeholder="Пошук...">
+
                             </div>
+
                             <select id="filterSelect" class="custom-select">
+
                                 <option value="all">Всі файли</option>
+
                                 <option value="images">Фотографії</option>
+
                                 <option value="docs">Документи</option>
+
                                 <option value="videos">Відео</option>
+
                             </select>
+
                             <select id="sortSelect" class="custom-select">
+
                                 <option value="newest">Спочатку нові</option>
+
                                 <option value="largest">Спочатку великі</option>
+
                                 <option value="az">За алфавітом</option>
+
                             </select>
+
                         </div>
+
                     </div>
+
                     <ul id="file-list" class="file-list"></ul>
+
                 </div>
+
             </section>
+
+
 
             <section id="view-trash" class="view-section">
-                <div class="page-header">
-                    <h1>Кошик 🗑️</h1>
-                    <p class="text-muted">Тут знаходяться видалені файли. Вони все ще займають місце на диску.</p>
+
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+
+                    <div>
+
+                        <h1>Кошик 🗑️</h1>
+
+                        <p class="text-muted">Тут знаходяться видалені файли. Вони все ще займають місце на диску.</p>
+
+                    </div>
+
+                    <button id="clearTrashBtn" class="btn-danger"
+                        style="display: none; gap: 8px; align-items: center; padding: 10px 16px; font-weight: 600;">
+
+                        <i class='bx bx-trash-alt'></i> Очистити кошик
+
+                    </button>
+
                 </div>
+
                 <div class="files-card">
+
                     <ul id="trash-list" class="file-list">
+
                         <li style="justify-content: center; color: #6b7280;">Завантаження кошика...</li>
+
                     </ul>
+
                 </div>
+
             </section>
 
+
+
+            <section id="view-admin" class="view-section">
+
+                <div class="page-header">
+
+                    <h1>Панель керування 👑</h1>
+
+                    <p class="text-muted">Управління співробітниками та розподіл пам'яті</p>
+
+                </div>
+
+
+
+                <h3
+                    style="margin-bottom: 15px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+
+                    <i class='bx bx-bell' style="color: #f59e0b;"></i> Запити на розширення диска
+
+                </h3>
+
+                <div class="files-card" style="margin-bottom: 30px;">
+
+                    <div style="overflow-x: auto;">
+
+                        <table class="admin-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Користувач</th>
+
+                                    <th>Причина/Опис запиту</th>
+
+                                    <th>Дата запиту</th>
+
+                                    <th>Дія</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="admin-requests-list">
+
+                                <tr>
+
+                                    <td colspan="4" style="text-align: center; color: #6b7280;">Завантаження запитів...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+
+                <h3
+                    style="margin-bottom: 15px; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+
+                    <i class='bx bx-group' style="color: #3b82f6;"></i> Усі співробітники
+
+                </h3>
+
+                <div class="files-card">
+
+                    <div style="overflow-x: auto;">
+
+                        <table class="admin-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>ID</th>
+
+                                    <th>Співробітник</th>
+
+                                    <th>Використано</th>
+
+                                    <th>Загальна квота</th>
+
+                                    <th>Керування (± 5 ГБ)</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="admin-users-list">
+
+                                <tr>
+
+                                    <td colspan="5" style="text-align: center;"><i class="bx bx-loader bx-spin"></i>
+
+                                        Завантаження...</td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
         </main>
+
     </div>
 
+
+
     <script>
-        // SPA Навігація (Перемикання вкладок)
+
         function switchView(viewId, clickedElement) {
-            // Ховаємо всі секції
+
             document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-            // Показуємо потрібну
+
             document.getElementById(`view-${viewId}`).classList.add('active');
 
-            // Змінюємо активний клас в меню
+
+
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            if(clickedElement) clickedElement.classList.add('active');
 
-            // Додаткові дії при переході
+            if (clickedElement) clickedElement.classList.add('active');
+
+
+
             if (viewId === 'files') loadFiles();
-            if (viewId === 'dashboard') loadQuota();
-            if (viewId === 'trash') loadTrash(); // Цю функцію напишемо пізніше
+
+            if (viewId === 'dashboard') { loadQuota(); loadRecentFiles(); }
+
+            if (viewId === 'trash') loadTrash();
+
+            if (viewId === 'admin') loadAdminPanel();
+
         }
 
-        // --- SweetAlert2 (Запит на квоту) ---
+
+
         function requestStorage() {
+
             Swal.fire({
+
                 title: 'Запит на розширення пам\'яті',
+
                 input: 'textarea',
+
                 inputLabel: 'Коротко опишіть, для якого проєкту потрібне місце',
+
                 inputPlaceholder: 'Наприклад: Потрібно додатково 5 ГБ для збереження відео-рендерів...',
+
                 showCancelButton: true,
+
                 confirmButtonText: '<i class="bx bx-send"></i> Відправити адміністратору',
+
                 cancelButtonText: 'Скасувати',
+
                 confirmButtonColor: '#10b981',
-                cancelButtonColor: '#ef4444'
-            }).then((result) => {
+
+                cancelButtonColor: '#6b7280'
+
+            }).then(async (result) => {
+
                 if (result.isConfirmed && result.value) {
-                    // Тут пізніше зробимо запит на бекенд
-                    Swal.fire('Відправлено!', 'Ваш запит передано адміністратору. Очікуйте на погодження.', 'success');
+
+                    try {
+
+                        const response = await fetch('/api/admin/quota-request', {
+
+                            method: 'POST',
+
+                            headers: { 'Content-Type': 'application/json' },
+
+                            body: JSON.stringify({ description: result.value })
+
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+
+                            Swal.fire('Відправлено!', data.message, 'success');
+
+                        } else {
+
+                            Swal.fire('Помилка', data.error || 'Не вдалося надіслати запит', 'error');
+
+                        }
+
+                    } catch (error) {
+
+                        Swal.fire('Помилка', 'Відсутній зв\'язок із сервером', 'error');
+
+                    }
+
                 }
+
             });
+
         }
 
 
-        // ==========================================
-        // Твій старий робочий JS код залишається майже без змін
-        // ==========================================
+
         let currentFolderId = null;
+
         let folderHistory = [];
-        let globalFolders = []; 
-        let globalFiles = [];  
+
+        let globalFolders = [];
+
+        let globalFiles = [];
+
+
 
         function formatBytes(bytes) {
+
             if (bytes === 0 || !bytes) return '0 Байт';
+
             const k = 1024;
+
             const sizes = ['Байт', 'КБ', 'МБ', 'ГБ'];
+
             const i = Math.floor(Math.log(bytes) / Math.log(k));
+
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+
         }
+
+
 
         const listElement = document.getElementById('file-list');
+
         const navBar = document.getElementById('navigation-bar');
 
+
+
         document.getElementById('searchInput').addEventListener('input', renderFiles);
+
         document.getElementById('filterSelect').addEventListener('change', renderFiles);
+
         document.getElementById('sortSelect').addEventListener('change', renderFiles);
 
-        async function loadQuota() {
+
+
+        async function loadUserProfile() {
+
             try {
-                const response = await fetch('/quota');
+
+                const response = await fetch('/api/users/me');
+
+                if (response.ok) {
+
+                    const data = await response.json();
+
+                    const username = data.username;
+
+
+
+                    document.getElementById('currentUsername').innerText = username;
+
+                    document.getElementById('userAvatar').innerText = username.substring(0, 2).toUpperCase();
+
+                } else {
+
+                    window.location.href = '/login.html';
+
+                }
+
+            } catch (error) {
+
+                console.error('Помилка завантаження профілю:', error);
+
+                document.getElementById('currentUsername').innerText = 'Помилка';
+
+            }
+
+        }
+
+
+
+        async function loadQuota() {
+
+            try {
+
+                const response = await fetch('/api/files/quota'); // <--- ДОДАНО /api/files
+
                 if (!response.ok) return;
+
                 const data = await response.json();
+
                 const used = Number(data.used_space);
+
                 const total = Number(data.total_space);
+
                 const percentage = total > 0 ? (used / total) * 100 : 0;
 
+
+
                 document.getElementById('quota-text').innerHTML = `<i class='bx bx-hdd'></i> Використано <strong>${formatBytes(used)}</strong> із ${formatBytes(total)}`;
+
                 document.getElementById('quota-percentage').textContent = `${percentage.toFixed(1)}%`;
 
+
+
                 const bar = document.getElementById('quota-bar');
+
                 bar.style.width = `${percentage}%`;
 
+
+
                 if (percentage > 90) bar.style.backgroundColor = '#ef4444';
+
                 else if (percentage > 75) bar.style.backgroundColor = '#f59e0b';
+
                 else bar.style.backgroundColor = '#10b981';
+
             } catch (error) { console.error(error); }
+
         }
+
+
+
+        async function triggerDownload(diskName, originalName) {
+
+            try {
+
+                const dlResponse = await fetch(`/api/files/download/${diskName}`);
+
+                if (dlResponse.ok) {
+
+                    const blob = await dlResponse.blob();
+
+                    const url = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+
+                    a.href = url;
+
+                    a.download = originalName;
+
+                    document.body.appendChild(a);
+
+                    a.click();
+
+                    a.remove();
+
+                    window.URL.revokeObjectURL(url);
+
+                } else {
+
+                    Swal.fire('Помилка', 'Не вдалося скачати file', 'error');
+
+                }
+
+            } catch (e) { console.error(e); }
+
+        }
+
+
 
         document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+
             event.preventDefault();
+
             const fileInput = document.getElementById('fileInput');
+
             if (fileInput.files.length === 0) return;
 
+
+
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+
+
+
+            for (let i = 0; i < fileInput.files.length; i++) {
+
+                formData.append('files', fileInput.files[i]);
+
+            }
+
+
+
             if (currentFolderId) formData.append('folder_id', currentFolderId);
 
-            // Використовуємо SweetAlert для процесу завантаження
+
+
             Swal.fire({
+
                 title: 'Завантаження...',
-                text: 'Будь ласка, зачекайте.',
+
+                text: `Завантажуємо ${fileInput.files.length} файл(ів). Будь ласка, зачекайте.`,
+
                 allowOutsideClick: false,
+
                 didOpen: () => { Swal.showLoading(); }
+
             });
 
+
+
             try {
-                const response = await fetch('/upload', { method: 'POST', body: formData });
+
+                const response = await fetch('/api/files/upload', { method: 'POST', body: formData });
+
                 const data = await response.json();
+
+
 
                 if (!response.ok) {
+
                     Swal.fire('Помилка', data.error || 'Помилка завантаження', 'error');
+
                 } else {
-                    Swal.fire('Успіх!', data.message, 'success');
+
+                    Swal.fire('Успіх!', data.message || 'Файли завантажено', 'success');
+
                     document.getElementById('uploadForm').reset();
+
                     loadFiles();
+
                     loadQuota();
+
                 }
+
             } catch (error) {
+
                 Swal.fire('Помилка', 'Втрачено з\'єднання з сервером', 'error');
+
             }
+
         });
+
+
 
         document.getElementById('createFolderForm').addEventListener('submit', async (event) => {
+
             event.preventDefault();
+
             const folderName = document.getElementById('folderNameInput').value;
+
             try {
+
                 const response = await fetch('/folders', {
+
                     method: 'POST',
+
                     headers: { 'Content-Type': 'application/json' },
+
                     body: JSON.stringify({ name: folderName, parent_id: currentFolderId })
+
                 });
+
                 if (response.ok) {
+
                     document.getElementById('createFolderForm').reset();
+
                     loadFiles();
-                    Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Папку створено'});
+
+                    Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Папку створено' });
+
                 }
+
             } catch (error) { console.error(error); }
+
         });
+
+
 
         document.getElementById('backBtn').addEventListener('click', () => {
+
             if (folderHistory.length > 0) {
+
                 currentFolderId = folderHistory.pop();
+
                 document.getElementById('searchInput').value = '';
+
                 loadFiles();
+
             }
+
         });
+
+
+
+        async function checkAdminStatus() {
+
+            try {
+
+                const response = await fetch('/api/admin/users');
+
+                if (response.ok) {
+
+                    const adminBtn = document.getElementById('adminNavBtn');
+
+                    if (adminBtn) adminBtn.style.display = 'flex';
+
+
+
+                    const roleText = document.getElementById('userRoleText');
+
+                    if (roleText) {
+
+                        roleText.textContent = 'Адміністратор підприємства';
+
+                        roleText.style.color = '#38bdf8';
+
+                    }
+
+                }
+
+            } catch (error) {
+
+                console.error('Помилка перевірки статусу адміна:', error);
+
+            }
+
+        }
+
+
 
         async function loadFiles() {
+
             try {
-                let url = '/files';
+
+                let url = '/api/files';
+
                 if (currentFolderId) url += `?folder_id=${currentFolderId}`;
+
                 const response = await fetch(url, { cache: 'no-store' });
+
                 if (response.status === 401 || response.status === 403) {
+
                     window.location.href = '/login.html';
+
                     return;
+
                 }
+
                 const data = await response.json();
+
                 globalFolders = data.folders || [];
+
                 globalFiles = data.files || [];
+
                 renderFiles();
+
             } catch (error) { console.error(error); }
+
         }
+
+
 
         function renderFiles() {
+
             listElement.innerHTML = '';
+
             navBar.style.display = currentFolderId ? 'block' : 'none';
 
+
+
             const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
             const filterType = document.getElementById('filterSelect').value;
+
             const sortType = document.getElementById('sortSelect').value;
 
+
+
             let filteredFolders = globalFolders.filter(f => f.name.toLowerCase().includes(searchQuery));
+
             let filteredFiles = globalFiles.filter(f => f.encrypted_original_name.toLowerCase().includes(searchQuery));
 
+
+
             if (filterType !== 'all') {
-                filteredFolders = []; 
+
+                filteredFolders = [];
+
                 filteredFiles = filteredFiles.filter(f => {
+
                     const ext = f.encrypted_original_name.split('.').pop().toLowerCase();
+
                     if (filterType === 'images') return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+
                     if (filterType === 'docs') return ['txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(ext);
+
                     if (filterType === 'videos') return ['mp4', 'webm', 'avi', 'mov', 'mkv'].includes(ext);
+
                     return true;
+
                 });
+
             }
+
+
 
             filteredFiles.sort((a, b) => {
+
                 if (sortType === 'newest') return new Date(b.uploaded_at || 0) - new Date(a.uploaded_at || 0);
+
                 if (sortType === 'largest') return b.size_bytes - a.size_bytes;
+
                 if (sortType === 'az') return a.encrypted_original_name.localeCompare(b.encrypted_original_name);
+
                 return 0;
+
             });
+
+
 
             if (filteredFolders.length === 0 && filteredFiles.length === 0) {
+
                 listElement.innerHTML = '<li class="empty-state"><i class="bx bx-ghost" style="font-size: 40px; margin-bottom: 10px;"></i><br>Тут поки порожньо</li>';
+
                 return;
+
             }
 
+
+
             filteredFolders.forEach(folder => {
+
                 const li = document.createElement('li');
+
                 li.className = 'file-list-item';
-                
+
+
+
                 const folderInfo = document.createElement('div');
+
                 folderInfo.className = 'item-info';
+
                 folderInfo.innerHTML = `<i class='bx bxs-folder' style="color: #3b82f6; font-size: 24px;"></i> <strong class="item-name">${folder.name}</strong>`;
+
                 folderInfo.onclick = () => {
-                    folderHistory.push(currentFolderId); 
+
+                    folderHistory.push(currentFolderId);
+
                     currentFolderId = folder.id;
+
                     document.getElementById('searchInput').value = '';
-                    loadFiles();                        
+
+                    loadFiles();
+
                 };
 
+
+
                 const deleteBtn = document.createElement('button');
+
                 deleteBtn.className = 'btn-icon-danger';
+
                 deleteBtn.innerHTML = '<i class="bx bx-trash"></i>';
+
                 deleteBtn.onclick = async (event) => {
-                    event.stopPropagation(); 
+
+                    event.stopPropagation();
+
                     Swal.fire({
+
                         title: 'Видалити папку?',
+
                         text: `Папку "${folder.name}" буде переміщено у кошик.`,
+
                         icon: 'warning',
+
                         showCancelButton: true,
+
                         confirmButtonColor: '#ef4444',
+
                         confirmButtonText: 'Так, видалити',
+
                         cancelButtonText: 'Скасувати'
+
                     }).then(async (result) => {
+
                         if (result.isConfirmed) {
+
                             try {
+
                                 const response = await fetch(`/folders/${folder.id}`, { method: 'DELETE' });
+
                                 if (response.ok) {
+
                                     loadFiles();
-                                    Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Переміщено у кошик'});
+
+                                    Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Переміщено у кошик' });
+
                                 }
+
                             } catch (error) { console.error(error); }
+
                         }
+
                     });
+
                 };
+
+
 
                 li.appendChild(folderInfo);
+
                 li.appendChild(deleteBtn);
+
                 listElement.appendChild(li);
+
             });
+
+
 
             filteredFiles.forEach(file => {
+
                 const li = document.createElement('li');
+
                 li.className = 'file-list-item';
 
+
+
                 const fileInfo = document.createElement('div');
+
                 fileInfo.className = 'item-info';
-                
+
+
+
                 const ext = file.encrypted_original_name.split('.').pop().toLowerCase();
+
                 let iconClass = 'bx-file';
+
                 let iconColor = '#6b7280';
-                if(['jpg', 'png', 'jpeg'].includes(ext)) { iconClass = 'bx-image'; iconColor = '#10b981'; }
-                else if(['mp4', 'mkv', 'avi'].includes(ext)) { iconClass = 'bx-video'; iconColor = '#8b5cf6'; }
-                else if(['pdf', 'doc', 'docx'].includes(ext)) { iconClass = 'bx-file-blank'; iconColor = '#ef4444'; }
+
+                if (['jpg', 'png', 'jpeg'].includes(ext)) { iconClass = 'bx-image'; iconColor = '#10b981'; }
+
+                else if (['mp4', 'mkv', 'avi'].includes(ext)) { iconClass = 'bx-video'; iconColor = '#8b5cf6'; }
+
+                else if (['pdf', 'doc', 'docx'].includes(ext)) { iconClass = 'bx-file-blank'; iconColor = '#ef4444'; }
+
+
 
                 const sizeStr = formatBytes(file.size_bytes);
+
                 const dateStr = file.uploaded_at ? new Date(file.uploaded_at).toLocaleDateString('uk-UA') : '';
 
+
+
                 fileInfo.innerHTML = `
+
                     <i class='bx ${iconClass}' style="color: ${iconColor}; font-size: 24px;"></i>
+
                     <div class="item-meta">
+
                         <span class="item-name">${file.encrypted_original_name}</span>
+
                         <span class="item-size">${sizeStr} • ${dateStr}</span>
+
                     </div>
+
                 `;
 
+
+
                 const buttonsContainer = document.createElement('div');
+
                 buttonsContainer.className = 'item-actions';
 
-                const previewableExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'pdf', 'txt'];
+
+
+                const previewableExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'webm', 'pdf', 'txt', 'doc', 'docx'];
+
                 if (previewableExts.includes(ext)) {
+
                     const previewBtn = document.createElement('button');
+
                     previewBtn.className = 'btn-icon-secondary';
+
                     previewBtn.innerHTML = '<i class="bx bx-show"></i>';
+
                     previewBtn.title = 'Переглянути';
-                    previewBtn.onclick = () => { window.open(`/preview/${file.disk_name}`, '_blank'); };
+
+
+
+                    previewBtn.onclick = () => {
+
+                        const fileUrl = `/api/files/preview/${file.disk_name}`;
+
+
+
+                        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+
+                            Swal.fire({
+
+                                title: file.encrypted_original_name,
+
+                                html: `
+
+                                    <div style="width: 100%; max-width: 700px; height: 480px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: #1e293b; border-radius: 8px;">
+
+                                        <img src="${fileUrl}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" alt="${file.encrypted_original_name}">
+
+                                    </div>
+
+                                `,
+
+                                width: '80%',
+
+                                showCloseButton: true,
+
+                                confirmButtonText: 'Закрити',
+
+                                confirmButtonColor: '#10b981'
+
+                            });
+
+                        }
+
+                        else if (['mp4', 'webm'].includes(ext)) {
+
+                            Swal.fire({
+
+                                title: file.encrypted_original_name,
+
+                                html: `
+
+                                    <div style="width: 100%; max-width: 700px; height: 480px; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: #000000; border-radius: 8px;">
+
+                                        <video src="${fileUrl}" controls style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"></video>
+
+                                    </div>
+
+                                `,
+
+                                width: '80%',
+
+                                showCloseButton: true,
+
+                                confirmButtonText: 'Закрити',
+
+                                confirmButtonColor: '#10b981'
+
+                            });
+
+
+
+                        } else if (ext === 'pdf') {
+
+                            Swal.fire({
+
+                                title: file.encrypted_original_name,
+
+                                html: `<iframe src="${fileUrl}" width="100%" height="600px" style="border: none; border-radius: 6px;"></iframe>`,
+
+                                width: '80%',
+
+                                showCloseButton: true,
+
+                                confirmButtonText: 'Закрити'
+
+                            });
+
+                        } else if (['doc', 'docx'].includes(ext)) {
+
+                            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+
+                                Swal.fire({
+
+                                    title: 'Локальний режим (Localhost)',
+
+                                    text: `Хмарний перегляд документа "${file.encrypted_original_name}" недоступний на localhost без публічної IP-адреси. Бажаєте завантажити файл на комп'ютер?`,
+
+                                    icon: 'info',
+
+                                    showCancelButton: true,
+
+                                    confirmButtonText: '<i class="bx bx-download"></i> Завантажити',
+
+                                    cancelButtonText: 'Закрити',
+
+                                    confirmButtonColor: '#10b981'
+
+                                }).then((result) => {
+
+                                    if (result.isConfirmed) {
+
+                                        triggerDownload(file.disk_name, file.encrypted_original_name);
+
+                                    }
+
+                                });
+
+                            } else {
+
+                                const publicFileUrl = encodeURIComponent(`${window.location.origin}${fileUrl}`);
+
+                                const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${publicFileUrl}`;
+
+
+
+                                Swal.fire({
+
+                                    title: file.encrypted_original_name,
+
+                                    html: `<iframe src="${officeViewerUrl}" width="100%" height="600px" style="border: none; border-radius: 6px;"></iframe>`,
+
+                                    width: '80%',
+
+                                    showCloseButton: true,
+
+                                    confirmButtonText: 'Закрити'
+
+                                });
+
+                            }
+
+                        } else if (ext === 'txt') {
+
+                            Swal.fire({
+
+                                title: file.encrypted_original_name,
+
+                                html: `<iframe src="${fileUrl}" width="100%" height="400px" style="border: 1px solid var(--border-color); background: #f8fafc; border-radius: 6px; padding: 10px;"></iframe>`,
+
+                                width: '60%',
+
+                                showCloseButton: true,
+
+                                confirmButtonText: 'Закрити'
+
+                            });
+
+                        }
+
+                    };
+
                     buttonsContainer.appendChild(previewBtn);
+
                 }
+
+
 
                 const downloadBtn = document.createElement('button');
+
                 downloadBtn.className = 'btn-icon-primary';
+
                 downloadBtn.innerHTML = '<i class="bx bx-download"></i>';
+
                 downloadBtn.title = 'Скачати';
+
                 downloadBtn.onclick = async () => {
-                    try {
-                        const dlResponse = await fetch(`/download/${file.disk_name}`);
-                        if (dlResponse.ok) {
-                            const blob = await dlResponse.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = file.encrypted_original_name;
-                            document.body.appendChild(a);
-                            a.click();
-                            a.remove();
-                            window.URL.revokeObjectURL(url);
-                        } else Swal.fire('Помилка', 'Не вдалося скачати', 'error');
-                    } catch (e) { console.error(e); }
+
+                    triggerDownload(file.disk_name, file.encrypted_original_name);
+
                 };
+
                 buttonsContainer.appendChild(downloadBtn);
-                
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn-icon-danger';
-                deleteBtn.innerHTML = '<i class="bx bx-trash"></i>';
-                deleteBtn.title = 'Видалити';
-                deleteBtn.onclick = async () => {
-                    Swal.fire({
-                        title: 'Перемістити у кошик?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#ef4444',
-                        confirmButtonText: 'Так',
-                        cancelButtonText: 'Ні'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            const delResponse = await fetch(`/delete/${file.disk_name}`, { method: 'DELETE' });
-                            if (delResponse.ok) {
-                                loadFiles();
-                                Swal.fire({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Видалено'});
-                            }
-                        }
+
+
+
+                const moveBtn = document.createElement('button');
+
+                moveBtn.className = 'btn-icon-secondary';
+
+                moveBtn.innerHTML = '<i class="bx bx-folder-open"></i>';
+
+                moveBtn.title = 'Перемістити в іншу папку';
+
+                moveBtn.onclick = async () => {
+
+                    let folderOptions = { 'root': '🏠 Головна (Коренева папка)' };
+
+                    globalFolders.forEach(f => {
+
+                        folderOptions[f.id] = `📁 ${f.name}`;
+
                     });
+
+
+
+                    const { value: selectedFolder } = await Swal.fire({
+
+                        title: 'Куди перемістити файл?',
+
+                        input: 'select',
+
+                        inputOptions: folderOptions,
+
+                        inputPlaceholder: 'Оберіть папку призначення...',
+
+                        showCancelButton: true,
+
+                        confirmButtonText: 'Перемістити',
+
+                        cancelButtonText: 'Скасувати'
+
+                    });
+
+
+
+                    if (selectedFolder) {
+
+                        const targetId = selectedFolder === 'root' ? null : selectedFolder;
+
+                        try {
+
+                            const res = await fetch(`/api/files/move/${file.disk_name}`, {
+
+                                method: 'PUT',
+
+                                headers: { 'Content-Type': 'application/json' },
+
+                                body: JSON.stringify({ folder_id: targetId })
+
+                            });
+
+                            if (res.ok) {
+
+                                Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Файл переміщено!' });
+
+                                loadFiles();
+
+                            }
+
+                        } catch (e) { console.error(e); }
+
+                    }
+
                 };
+
+                buttonsContainer.appendChild(moveBtn);
+
+
+
+                const deleteBtn = document.createElement('button');
+
+                deleteBtn.className = 'btn-icon-danger';
+
+                deleteBtn.innerHTML = '<i class="bx bx-trash"></i>';
+
+                deleteBtn.title = 'Видалити';
+
+                deleteBtn.onclick = async () => {
+
+                    Swal.fire({
+
+                        title: 'Перемістити у кошик?',
+
+                        icon: 'warning',
+
+                        showCancelButton: true,
+
+                        confirmButtonColor: '#ef4444',
+
+                        confirmButtonText: 'Так',
+
+                        cancelButtonText: 'Ні'
+
+                    }).then(async (result) => {
+
+                        if (result.isConfirmed) {
+
+                            const delResponse = await fetch(`/api/files/delete/${file.disk_name}`, { method: 'DELETE' });
+
+                            if (delResponse.ok) {
+
+                                loadFiles();
+
+                                Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Видалено' });
+
+                            }
+
+                        }
+
+                    });
+
+                };
+
                 buttonsContainer.appendChild(deleteBtn);
 
+
+
                 li.appendChild(fileInfo);
+
                 li.appendChild(buttonsContainer);
+
                 listElement.appendChild(li);
+
             });
+
         }
 
-        // Ініціалізація першої вкладки
+
+
+        async function loadRecentFiles() {
+
+            const recentList = document.getElementById('recent-files-list');
+
+            try {
+
+                const response = await fetch('/api/files/recent');
+
+                if (!response.ok) throw new Error('Помилка отримання файлів');
+
+
+
+                const files = await response.json();
+
+                recentList.innerHTML = '';
+
+
+
+                if (files.length === 0) {
+
+                    recentList.innerHTML = '<li style="justify-content: center; color: #6b7280; padding: 20px;">Ви ще не завантажували файли.</li>';
+
+                    return;
+
+                }
+
+
+
+                files.forEach(file => {
+
+                    const li = document.createElement('li');
+
+                    li.className = 'file-list-item';
+
+
+
+                    const fileInfo = document.createElement('div');
+
+                    fileInfo.className = 'item-info';
+
+
+
+                    const ext = file.encrypted_original_name.split('.').pop().toLowerCase();
+
+                    let iconClass = 'bx-file';
+
+                    let iconColor = '#6b7280';
+
+                    if (['jpg', 'png', 'jpeg', 'gif', 'webp'].includes(ext)) { iconClass = 'bx-image'; iconColor = '#10b981'; }
+
+                    else if (['mp4', 'mkv', 'avi', 'webm'].includes(ext)) { iconClass = 'bx-video'; iconColor = '#8b5cf6'; }
+
+                    else if (['pdf', 'doc', 'docx', 'txt'].includes(ext)) { iconClass = 'bx-file-blank'; iconColor = '#ef4444'; }
+
+
+
+                    const sizeStr = formatBytes(file.size_bytes);
+
+                    const dateStr = file.uploaded_at ? new Date(file.uploaded_at).toLocaleDateString('uk-UA') : '';
+
+
+
+                    fileInfo.innerHTML = `
+
+                        <i class='bx ${iconClass}' style="color: ${iconColor}; font-size: 24px;"></i>
+
+                        <div class="item-meta">
+
+                            <span class="item-name">${file.encrypted_original_name}</span>
+
+                            <span class="item-size">${sizeStr} • ${dateStr}</span>
+
+                        </div>
+
+                    `;
+
+
+
+                    const actionsContainer = document.createElement('div');
+
+                    actionsContainer.className = 'item-actions';
+
+
+
+                    const downloadBtn = document.createElement('button');
+
+                    downloadBtn.className = 'btn-icon-primary';
+
+                    downloadBtn.innerHTML = '<i class="bx bx-download"></i>';
+
+                    downloadBtn.title = 'Скачати';
+
+                    downloadBtn.onclick = () => triggerDownload(file.disk_name, file.encrypted_original_name);
+
+
+
+                    actionsContainer.appendChild(downloadBtn);
+
+                    li.appendChild(fileInfo);
+
+                    li.appendChild(actionsContainer);
+
+                    recentList.appendChild(li);
+
+                });
+
+            } catch (error) {
+
+                console.error(error);
+
+                recentList.innerHTML = '<li style="justify-content: center; color: #ef4444; padding: 15px;">Не вдалося завантажити останні файли</li>';
+
+            }
+
+        }
+
+
+
+        loadUserProfile();
+
+        checkAdminStatus();
+
         loadQuota();
+
         loadFiles();
 
+        loadRecentFiles();
+
+
+
         document.getElementById('logoutBtn').addEventListener('click', async () => {
+
             await fetch('/api/users/logout', { method: 'POST' });
+
             window.location.href = '/login.html';
+
         });
 
-        // Заглушка для відображення кошика (повну логіку додамо згодом)
+
+
         async function loadTrash() {
-            document.getElementById('trash-list').innerHTML = '<li style="justify-content: center; color: #6b7280; padding: 20px;">Завантаження...</li>';
+
+            const trashList = document.getElementById('trash-list');
+
+            const clearBtn = document.getElementById('clearTrashBtn');
+
+
+
+            trashList.innerHTML = '<li style="justify-content: center; color: #6b7280; padding: 20px;"><i class="bx bx-loader bx-spin" style="font-size: 24px;"></i> Завантаження...</li>';
+
+            clearBtn.style.display = 'none';
+
+
+
             try {
+
                 const response = await fetch('/api/trash');
-                if (response.ok) {
-                    // Логіка відмальовки кошика
-                    document.getElementById('trash-list').innerHTML = '<li style="justify-content: center; color: #6b7280; padding: 20px;">Кошик поки працює в тестовому режимі</li>';
+
+                if (!response.ok) throw new Error('Помилка завантаження кошика');
+
+
+
+                const data = await response.json();
+
+                const { folders, files } = data;
+
+
+
+                trashList.innerHTML = '';
+
+
+
+                if (folders.length === 0 && files.length === 0) {
+
+                    trashList.innerHTML = '<li class="empty-state"><i class="bx bx-check-shield" style="font-size: 40px; margin-bottom: 10px; color: #10b981;"></i><br>Кошик порожній. Диск у безпеці!</li>';
+
+                    clearBtn.style.display = 'none';
+
+                    return;
+
                 }
-            } catch (e) { console.error(e); }
+
+
+
+                clearBtn.style.display = 'flex';
+
+
+
+                folders.forEach(folder => {
+
+                    const li = document.createElement('li');
+
+                    li.className = 'file-list-item';
+
+                    li.style.backgroundColor = '#fff1f2';
+
+
+
+                    const info = document.createElement('div');
+
+                    info.className = 'item-info';
+
+                    info.innerHTML = `<i class='bx bxs-folder' style="color: #ef4444; font-size: 24px;"></i> <strong class="item-name">${folder.name} <span style="font-size:12px; font-weight:normal; color:#6b7280;">(Папка)</span></strong>`;
+
+
+
+                    const actions = document.createElement('div');
+
+                    actions.className = 'item-actions';
+
+
+
+                    const restoreBtn = document.createElement('button');
+
+                    restoreBtn.className = 'btn-icon-primary';
+
+                    restoreBtn.innerHTML = '<i class="bx bx-undo"></i>';
+
+                    restoreBtn.title = 'Відновити';
+
+                    restoreBtn.onclick = async () => {
+
+                        const res = await fetch(`/api/trash/restore-folder/${folder.id}`, { method: 'PUT' });
+
+                        if (res.ok) {
+
+                            Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, icon: 'success', title: 'Папку відновлено' });
+
+                            loadTrash();
+
+                        }
+
+                    };
+
+
+
+                    const hardDelBtn = document.createElement('button');
+
+                    hardDelBtn.className = 'btn-icon-danger';
+
+                    hardDelBtn.innerHTML = '<i class="bx bx-trash-alt"></i>';
+
+                    hardDelBtn.title = 'Видалити назавжди';
+
+                    hardDelBtn.onclick = async () => {
+
+                        Swal.fire({
+
+                            title: 'Видалити назавжди?',
+
+                            text: 'Цю папку та всі файли в ній буде знищено. Це звільнить місце на диску.',
+
+                            icon: 'warning',
+
+                            showCancelButton: true,
+
+                            confirmButtonColor: '#ef4444',
+
+                            confirmButtonText: 'Знищити'
+
+                        }).then(async (result) => {
+
+                            if (result.isConfirmed) {
+
+                                const res = await fetch(`/api/trash/hard-delete-folder/${folder.id}`, { method: 'DELETE' });
+
+                                if (res.ok) {
+
+                                    Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Знищено' });
+
+                                    loadTrash();
+
+                                    loadQuota();
+
+                                }
+
+                            }
+
+                        });
+
+                    };
+
+
+
+                    actions.appendChild(restoreBtn);
+
+                    actions.appendChild(hardDelBtn);
+
+                    li.appendChild(info);
+
+                    li.appendChild(actions);
+
+                    trashList.appendChild(li);
+
+                });
+
+
+
+                files.forEach(file => {
+
+                    const li = document.createElement('li');
+
+                    li.className = 'file-list-item';
+
+                    li.style.backgroundColor = '#fff1f2';
+
+
+
+                    const info = document.createElement('div');
+
+                    info.className = 'item-info';
+
+                    info.innerHTML = `
+
+                        <i class='bx bx-file' style="color: #ef4444; font-size: 24px;"></i>
+
+                        <div class="item-meta">
+
+                            <span class="item-name">${file.encrypted_original_name}</span>
+
+                            <span class="item-size">${formatBytes(file.size_bytes)}</span>
+
+                        </div>
+
+                    `;
+
+
+
+                    const actions = document.createElement('div');
+
+                    actions.className = 'item-actions';
+
+
+
+                    const restoreBtn = document.createElement('button');
+
+                    restoreBtn.className = 'btn-icon-primary';
+
+                    restoreBtn.innerHTML = '<i class="bx bx-undo"></i>';
+
+                    restoreBtn.title = 'Відновити';
+
+                    restoreBtn.onclick = async () => {
+
+                        const res = await fetch(`/api/trash/restore-file/${file.disk_name}`, { method: 'PUT' });
+
+                        if (res.ok) {
+
+                            Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, icon: 'success', title: 'Файл відновлено' });
+
+                            loadTrash();
+
+                        }
+
+                    };
+
+
+
+                    const hardDelBtn = document.createElement('button');
+
+                    hardDelBtn.className = 'btn-icon-danger';
+
+                    hardDelBtn.innerHTML = '<i class="bx bx-trash-alt"></i>';
+
+                    hardDelBtn.title = 'Видалити назавжди';
+
+                    hardDelBtn.onclick = async () => {
+
+                        Swal.fire({
+
+                            title: 'Видалити назавжди?',
+
+                            text: 'Файл буде фізично видалено з диска. Квоту буде повернуто.',
+
+                            icon: 'warning',
+
+                            showCancelButton: true,
+
+                            confirmButtonColor: '#ef4444',
+
+                            confirmButtonText: 'Знищити'
+
+                        }).then(async (result) => {
+
+                            if (result.isConfirmed) {
+
+                                const res = await fetch(`/api/trash/hard-delete-file/${file.disk_name}`, { method: 'DELETE' });
+
+                                if (res.ok) {
+
+                                    Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Знищено' });
+
+                                    loadTrash();
+
+                                    loadQuota();
+
+                                }
+
+                            }
+
+                        });
+
+                    };
+
+
+
+                    actions.appendChild(restoreBtn);
+
+                    actions.appendChild(hardDelBtn);
+
+                    li.appendChild(info);
+
+                    li.appendChild(actions);
+
+                    trashList.appendChild(li);
+
+                });
+
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                trashList.innerHTML = '<li style="justify-content: center; color: #ef4444; padding: 20px;">Помилка завантаження кошика</li>';
+
+            }
+
         }
+
+
+
+        document.getElementById('clearTrashBtn').addEventListener('click', () => {
+
+            Swal.fire({
+
+                title: 'Очистити кошик повністю?',
+
+                text: 'Усі файли та папки в кошику будуть безповоротно видалені з сервера. Цю дію неможливо скасувати!',
+
+                icon: 'warning',
+
+                showCancelButton: true,
+
+                confirmButtonColor: '#ef4444',
+
+                cancelButtonColor: '#6b7280',
+
+                confirmButtonText: 'Так, очистити все',
+
+                cancelButtonText: 'Скасувати'
+
+            }).then(async (result) => {
+
+                if (result.isConfirmed) {
+
+                    try {
+
+                        const response = await fetch('/api/trash/clear', { method: 'DELETE' });
+
+                        const data = await response.json();
+
+
+
+                        if (response.ok && data.success) {
+
+                            await Swal.fire('Очищено!', data.message || 'Кошик повністю порожній, місце звільнено.', 'success');
+
+                            loadTrash();
+
+                            loadQuota();
+
+                        } else {
+
+                            Swal.fire('Помилка', data.error || 'Не вдалося очистити кошик', 'error');
+
+                        }
+
+                    } catch (error) {
+
+                        console.error('Помилка під час очищення кошика:', error);
+
+                        Swal.fire('Помилка', 'Відсутній зв\'язок із сервером', 'error');
+
+                    }
+
+                }
+
+            });
+
+        });
+
+
+
+        async function loadAdminPanel() {
+
+            loadAdminUsers();
+
+            loadAdminRequests();
+
+        }
+
+
+
+        async function loadAdminUsers() {
+
+            const tbody = document.getElementById('admin-users-list');
+
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;"><i class="bx bx-loader bx-spin"></i> Завантаження...</td></tr>';
+
+            try {
+
+                const response = await fetch('/api/admin/users');
+
+                if (!response.ok) {
+
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Доступ заборонено</td></tr>';
+
+                    return;
+
+                }
+
+                const users = await response.json();
+
+                tbody.innerHTML = '';
+
+                users.forEach(user => {
+
+                    const tr = document.createElement('tr');
+
+                    const used = formatBytes(user.used_space);
+
+                    const total = formatBytes(user.total_space);
+
+                    const roleBadge = user.is_admin ? '<span class="badge" style="background-color: #8b5cf6; color: white; padding: 3px 6px;">Адмін</span>' : '<span style="color: #64748b; font-size: 13px;">Співробітник</span>';
+
+                    tr.innerHTML = `
+
+                        <td>#${user.id}</td>
+
+                        <td><strong>${user.username}</strong><br>${roleBadge}</td>
+
+                        <td>${used}</td>
+
+                        <td><strong>${total}</strong></td>
+
+                        <td>
+
+                            <div class="quota-controls">
+
+                                <button class="btn-icon-primary" title="Додати 5 ГБ" onclick="updateUserQuota(${user.id}, ${user.total_space}, 5)"><i class='bx bx-plus'></i></button>
+
+                                <button class="btn-icon-danger" title="Забрати 5 ГБ" onclick="updateUserQuota(${user.id}, ${user.total_space}, -5)"><i class='bx bx-minus'></i></button>
+
+                            </div>
+
+                        </td>
+
+                    `;
+
+                    tbody.appendChild(tr);
+
+                });
+
+            } catch (error) {
+
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Помилка завантаження бази</td></tr>';
+
+            }
+
+        }
+
+
+
+        async function loadAdminRequests() {
+
+            const reqBody = document.getElementById('admin-requests-list');
+
+            try {
+
+                const response = await fetch('/api/admin/quota-requests');
+
+                if (!response.ok) return;
+
+                const requests = await response.json();
+
+
+
+                if (requests.length === 0) {
+
+                    reqBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #6b7280; padding: 15px;"><i class="bx bx-check-circle" style="color: #10b981;"></i> Усі запити опрацьовано!</td></tr>';
+
+                    return;
+
+                }
+
+
+
+                reqBody.innerHTML = '';
+
+                requests.forEach(req => {
+
+                    const tr = document.createElement('tr');
+
+                    const dateStr = new Date(req.created_at).toLocaleString('uk-UA');
+
+
+
+                    tr.innerHTML = `
+
+                        <td><strong>${req.username}</strong></td>
+
+                        <td style="max-width: 400px; white-space: normal; word-break: break-word;">${req.description}</td>
+
+                        <td><span style="font-size: 12px; color: #6b7280;">${dateStr}</span></td>
+
+                        <td>
+
+                            <div style="display: flex; gap: 8px;">
+
+                                <button class="btn-success" style="padding: 6px 12px; font-size: 13px;" onclick="handleQuotaRequest(${req.id}, 'approve')"><i class="bx bx-check"></i> Схвалити (+5GB)</button>
+
+                                <button class="btn-danger" style="padding: 6px 12px; font-size: 13px;" onclick="handleQuotaRequest(${req.id}, 'reject')"><i class="bx bx-x"></i> Відхилити</button>
+
+                            </div>
+
+                        </td>
+
+                    `;
+
+                    reqBody.appendChild(tr);
+
+                });
+
+            } catch (error) { console.error(error); }
+
+        }
+
+
+
+        async function handleQuotaRequest(requestId, action) {
+
+            try {
+
+                const response = await fetch('/api/admin/quota-requests/handle', {
+
+                    method: 'POST',
+
+                    headers: { 'Content-Type': 'application/json' },
+
+                    body: JSON.stringify({ requestId, action })
+
+                });
+
+
+
+                if (response.ok) {
+
+                    Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: action === 'approve' ? 'Запит схвалено, +5 ГБ додано!' : 'Запит відхилено' });
+
+                    loadAdminPanel();
+
+                }
+
+            } catch (error) { console.error(error); }
+
+        }
+
+
+
+        async function updateUserQuota(userId, currentTotalSpace, gbChange) {
+
+            const changeBytes = gbChange * 1024 * 1024 * 1024;
+
+            const newSpace = Number(currentTotalSpace) + changeBytes;
+
+
+
+            if (newSpace < 0) {
+
+                Swal.fire('Помилка', 'Квота не може бути меншою за нуль!', 'error');
+
+                return;
+
+            }
+
+
+
+            try {
+
+                const response = await fetch(`/api/admin/users/${userId}/quota`, {
+
+                    method: 'PUT',
+
+                    headers: { 'Content-Type': 'application/json' },
+
+                    body: JSON.stringify({ new_total_space: newSpace })
+
+                });
+
+
+
+                if (response.ok) {
+
+                    Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Квоту оновлено!' });
+
+                    loadAdminPanel();
+
+                }
+
+            } catch (error) { console.error(error); }
+
+        }
+
     </script>
+
 </body>
+
 </html>

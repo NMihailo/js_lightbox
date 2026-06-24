@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 const redisClient = require('../config/redis');
 
-// Перевірка, чи користувач авторизований
 const authenticateToken = async (req, res, next) => {
     const token = req.cookies.lightbox_token;
 
@@ -28,7 +27,6 @@ const authenticateToken = async (req, res, next) => {
     });
 };
 
-// Перевірка, чи користувач є адміністратором
 const isAdmin = async (req, res, next) => {
     try {
         const [users] = await pool.query('SELECT is_admin FROM users WHERE id = ?', [req.user.id]);

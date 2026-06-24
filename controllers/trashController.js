@@ -83,4 +83,38 @@ const hardDeleteFolder = async (req, res, next) => {
     }
 };
 
-module.exports = { getTrash, restoreFile, restoreFolder, hardDeleteFile, hardDeleteFolder };
+const clearTrash = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+
+        const [filesInTrash] = await pool.query(
+            'SELECT disk_name, size_bytes FROM files WHERE user_id = ? AND deleted_at IS NOT NULL',
+            [userId]
+        );
+
+        let totalFreedSpace = 0;
+
+        filesInTrash.forEach(file => {
+            totalFreedSpace += Number(file.size_bytes || 0);
+            const filePath = path.join(__dirname, '../uploads', file.disk_name);
+            if (fs.existsSync(filePath)) {
+                fs.unlink(filePath, (err) => {
+                    if (err) console.error(`Помилка видалення файлу ${file.disk_name}:`, err);
+                });
+            }
+        });
+
+        await pool.query('DELETE FROM files WHERE user_id = ? AND deleted_at IS NOT NULL', [userId]);
+        await pool.query('DELETE FROM folders WHERE user_id = ? AND deleted_at IS NOT NULL', [userId]);
+        if (totalFreedSpace > 0) {
+            await pool.query('UPDATE quotas SET used_space = GREATEST(0, used_space - ?) WHERE user_id = ?', [totalFreedSpace, userId]);
+            await redisClient.del(`quota_${userId}`);
+        }
+
+        res.status(200).json({ success: true, message: 'Кошик успішно очищено, місце звільнено!' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getTrash, restoreFile, restoreFolder, hardDeleteFile, hardDeleteFolder, clearTrash };

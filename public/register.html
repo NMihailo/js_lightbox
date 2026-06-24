@@ -3,65 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lightbox - Реєстрація</title>
+    <title>Реєстрація - Lightbox</title>
     <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
-<body>
+<body class="auth-page">
     <div class="auth-wrapper">
         <div class="auth-card">
-            <h1>Створити акаунт 🚀</h1>
-            <form id="registerForm" class="auth-form">
-                <input type="text" id="username" class="auth-input" placeholder="Введіть логін" required autocomplete="off">
-                <input type="password" id="password" class="auth-input" placeholder="Придумайте пароль" required>
-                <button type="submit" class="auth-btn">Зареєструватися</button>
-            </form>
-            <p id="message" class="message"></p>
             
-            <div class="switch-link">
-                Вже маєте корпоративний акаунт? <br><a href="/login.html">Увійти в систему</a>
+            <div class="auth-header">
+                <div class="logo-area" style="justify-content: center; border-bottom: none; padding-bottom: 0; align-items: center; gap: 12px;">
+                    <img src="images/lightbox_logo.png" alt="Lightbox Logo" style="height: 42px; width: auto; object-fit: contain;">
+                    <div class="logo-text">
+                        <h2 style="color: var(--text-main); font-size: 28px; margin: 0; font-weight: 700;">Lightbox</h2>
+                    </div>
+                </div>
+                <p class="text-muted" style="text-align: center; margin-top: 12px;">Створення нового корпоративного акаунта</p>
             </div>
+
+            <form id="registerForm" class="auth-form">
+                
+                <div id="errorMessage" style="color: var(--danger); font-size: 14px; text-align: center; display: none; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px;"></div>
+
+                <div id="successMessage" style="color: var(--primary); font-size: 14px; text-align: center; display: none; background: rgba(16, 185, 129, 0.1); padding: 10px; border-radius: 6px;"></div>
+
+                <div class="form-group">
+                    <label for="username">Придумайте логін</label>
+                    <div class="input-with-icon">
+                        <i class='bx bx-user'></i>
+                        <input type="text" id="username" name="username" class="custom-input" placeholder="Введіть логін" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Придумайте пароль</label>
+                    <div class="input-with-icon">
+                        <i class='bx bx-lock-alt'></i>
+                        <input type="password" id="password" name="password" class="custom-input" placeholder="Введіть пароль" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-success" style="width: 100%; justify-content: center; margin-top: 10px;">
+                    Створити акаунт <i class='bx bx-user-plus'></i>
+                </button>
+            </form>
+
+            <div class="divider"></div>
+
+            <div class="auth-footer text-muted" style="text-align: center;">
+                <p style="font-size: 14px; margin-bottom: 5px;">Вже маєте корпоративний акаунт?</p>
+                <a href="login.html" style="color: var(--primary); font-weight: 600; text-decoration: none;">Увійти в систему</a>
+            </div>
+
         </div>
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const messageEl = document.getElementById('message');
-            const submitBtn = e.target.querySelector('button');
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); 
 
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const errorBox = document.getElementById('errorMessage');
+            const successBox = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+            
             submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.7';
-            messageEl.textContent = 'Створення акаунту...';
-            messageEl.style.color = '#6b7280';
+            submitBtn.innerHTML = "Створення... <i class='bx bx-loader-alt bx-spin'></i>";
 
             try {
                 const response = await fetch('/api/users/register', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput,
+                        password: passwordInput
+                    })
                 });
-                
-                const data = await response.json();
-                
+
+                const result = await response.json();
+
                 if (response.ok) {
-                    messageEl.style.color = '#10b981';
-                    messageEl.textContent = data.message || 'Акаунт успішно створено!';
+                    successBox.style.display = 'block';
+                    successBox.innerText = result.message;
+                    
                     setTimeout(() => {
                         window.location.href = '/index.html';
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    messageEl.style.color = '#ef4444';
-                    messageEl.textContent = data.error || 'Помилка реєстрації';
+                    errorBox.style.display = 'block';
+                    errorBox.innerText = result.error;
                     submitBtn.disabled = false;
-                    submitBtn.style.opacity = '1';
+                    submitBtn.innerHTML = "Створити акаунт <i class='bx bx-user-plus'></i>";
                 }
             } catch (error) {
-                messageEl.style.color = '#ef4444';
-                messageEl.textContent = 'Помилка з\'єднання із сервером';
+                console.error('Network error:', error);
+                errorBox.style.display = 'block';
+                errorBox.innerText = 'Помилка з\'єднання з сервером';
                 submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
+                submitBtn.innerHTML = "Створити акаунт <i class='bx bx-user-plus'></i>";
             }
         });
     </script>

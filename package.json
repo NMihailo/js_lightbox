@@ -20,5 +20,8 @@
     "redis": "^6.0.0",
     "routes": "^2.1.0",
     "sql2": "^0.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

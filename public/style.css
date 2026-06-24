@@ -1,17 +1,11 @@
-/* ==========================================
-   CSS ЗМІННІ (Для ідеального поєднання кольорів)
-   ========================================== */
 :root {
     --sidebar-bg: #0f172a;
-    /* Глибокий темний для сайдбару */
     --sidebar-hover: #1e293b;
     --sidebar-text: #94a3b8;
     --sidebar-active: #ffffff;
     --sidebar-accent: #38bdf8;
-    /* Неоновий синій під логотип */
 
     --main-bg: #f8fafc;
-    /* Світлий простір для роботи */
     --card-bg: #ffffff;
     --text-main: #1f2937;
     --text-muted: #64748b;
@@ -31,16 +25,12 @@ body {
     color: var(--text-main);
 }
 
-/* ==========================================
-   МАКЕТ: САЙДБАР + РОБОЧА ЗОНА
-   ========================================== */
 .app-container {
     display: flex;
     height: 100vh;
     overflow: hidden;
 }
 
-/* БІЧНА ПАНЕЛЬ */
 .sidebar {
     width: 280px;
     background-color: var(--sidebar-bg);
@@ -64,7 +54,6 @@ body {
     height: 45px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-    /* Неонове світіння навколо лого */
     object-fit: cover;
 }
 
@@ -198,9 +187,6 @@ body {
     background: rgba(239, 68, 68, 0.1);
 }
 
-/* ==========================================
-   РОБОЧА ЗОНА (СВІТЛА)
-   ========================================== */
 .main-content {
     flex-grow: 1;
     overflow-y: auto;
@@ -243,9 +229,6 @@ body {
     margin: 0;
 }
 
-/* ==========================================
-   КАРТКИ ТА ЕЛЕМЕНТИ
-   ========================================== */
 .upload-card,
 .files-card {
     background: var(--card-bg);
@@ -327,9 +310,6 @@ body {
     margin: 20px 0;
 }
 
-/* ==========================================
-   КНОПКИ ТА СПИСКИ ФАЙЛІВ
-   ========================================== */
 button {
     font-family: inherit;
     border: none;
@@ -406,7 +386,6 @@ button {
     color: white;
 }
 
-/* Фільтри */
 .files-header-actions {
     display: flex;
     justify-content: space-between;
@@ -450,7 +429,6 @@ button {
     cursor: pointer;
 }
 
-/* Список */
 .file-list {
     list-style: none;
     padding: 0;
@@ -509,4 +487,94 @@ button {
     align-items: center;
     padding: 40px;
     color: var(--text-muted);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: 600px;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table th {
+    background-color: var(--main-bg);
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.admin-table tr:hover {
+    background-color: var(--main-bg);
+}
+
+.quota-controls {
+    display: flex;
+    gap: 10px;
+}
+
+body.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--sidebar-bg);
+    background-image: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent);
+}
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.auth-page .auth-card {
+    background-color: var(--card-bg);
+    padding: 35px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border: none;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.auth-form label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 18px;
+}
+
+.input-with-icon .custom-input {
+    width: 100%;
+    padding-left: 38px;
+    box-sizing: border-box;
+}
+
+.auth-footer a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
 }

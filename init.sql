@@ -1,4 +1,3 @@
--- Створюємо таблицю користувачів
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL UNIQUE,
@@ -6,19 +5,17 @@ CREATE TABLE IF NOT EXISTS users (
     is_admin TINYINT(1) DEFAULT 0
 );
 
--- Створюємо таблицю папок
 CREATE TABLE IF NOT EXISTS folders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     parent_id INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL, -- ДОДАНА КОЛОНКА
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (parent_id) REFERENCES folders(id) ON DELETE CASCADE
 );
 
--- Створюємо таблицю файлів
 CREATE TABLE IF NOT EXISTS files (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -28,7 +25,7 @@ CREATE TABLE IF NOT EXISTS files (
     encryption_iv VARCHAR(255) NOT NULL,
     size_bytes BIGINT NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL DEFAULT NULL, -- ДОДАНА КОЛОНКА
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE
 );
@@ -37,7 +34,7 @@ CREATE TABLE IF NOT EXISTS files (
 CREATE TABLE IF NOT EXISTS quotas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
-    total_space BIGINT NOT NULL DEFAULT 10737418240, -- 10 ГБ за замовчуванням (в байтах)
+    total_space BIGINT NOT NULL DEFAULT 10737418240,
     used_space BIGINT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

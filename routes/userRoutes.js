@@ -3,7 +3,6 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// ЗВЕРНИ УВАГУ: Шляхи змінено, бо файл тепер у папці routes
 const pool = require('../config/db');
 const redisClient = require('../config/redis');
 
@@ -50,6 +49,21 @@ router.post('/login', async (req, res, next) => {
         res.status(200).json({ success: true, message: 'Успішний вхід!' });
     } catch (error) {
         next(error);
+    }
+});
+
+router.get('/me', (req, res) => {
+    const token = req.cookies.lightbox_token;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Не авторизовано' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        res.status(200).json({ username: decoded.username });
+    } catch (error) {
+        res.status(401).json({ error: 'Недійсний токен' });
     }
 });
 
